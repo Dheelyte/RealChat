@@ -5,24 +5,71 @@
     <title>Chat Room</title>
 </head>
 <body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
-    <input id="chat-message-input" type="text" size="100"><br>
-    <input id="chat-message-submit" type="button" value="Send">
+    <div id="chat-log" style="height: 75vh; padding: 10px; border: 2px solid blueviolet; border-radius: 5px;"></div><br>
+    <div style="display: flex; gap: 5px">
+    <input id="chat-message-input" type="text" size="100" style="height: 30px; box-sizing: border-box; width: 100%; border-radius: 5px; margin-bottom: 10px; border: 2px solid blueviolet;"><br>
+    <input id="chat-message-submit" type="button" value="Send" style="height: 30px; background-color: blueviolet; border-radius: 5px; padding: 0px 10px; color: #fff; border: none; float: right;">
+    </div>
+    <h1 style="margin-top: 120px;">Login</h1>
+    <input id="username" type="text" size="100"><br>
+    <input id="password" type="password" size="100"><br>
+    <input id="login" type="button" value="Login">
     {{ room_name|json_script:"room-name" }}
     <script>
-        const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
-        const chatSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/chat/'
-            + roomName
-            + '/'
-        );
+        var token = null
+        var user = null
+
+        document.querySelector('#login').onclick = function(e) {
+            const username = document.querySelector('#username').value
+            const password = document.querySelector('#password').value
+
+            console.log(username, password)
+            fetch('http://127.0.0.1:8000/api/user/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+            })
+            .then(resp => resp.json())
+            .then((result) => {
+                console.log(result)
+                token = result.token
+                user = result.user
+                connect()
+            })
+        }
+
+        function connect() {
+            const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+            const chatSocket = new WebSocket(
+                'ws://'
+                + window.location.host
+                + '/ws/chat/'
+                + roomName
+                + '/'
+                + '?token='
+                + token
+            );
+        
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            console.log(e.data)
+            const p = document.createElement('p')
+            p.textContent = data.text
+            p.style.backgroundColor = data.sender === user.username ? "blueviolet" : "grey"
+            p.style.padding = "10px"
+            p.style.borderRadius = "5px"
+            p.style.color = "white"
+            p.style.display = "table"
+            p.style.margin = data.sender === user.username ? "5px 0px auto auto" : "5px auto auto 0px"
+            document.querySelector('#chat-log').appendChild(p);
         };
 
         chatSocket.onclose = function(e) {
@@ -40,10 +87,13 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'type': 'message',
+                'text': message,
+                'sender': user.username
             }));
             messageInputDom.value = '';
         };
+    }
     </script>
 </body>
 </html>
