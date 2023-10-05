@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core.paginator import Paginator, EmptyPage
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -32,18 +33,23 @@ class RoomMessages(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, room_id: int) -> Response:
-        
-        messages = Message.objects.filter(room__id=room_id)[:20]
-        serializer = MessageSerializer(messages, many=True)
+    def get(self, request, room_id: int):
+        messages = Message.objects.filter(room__id=room_id)
+        page = request.query_params.get('page')
+        if page:
+            paginator = Paginator(messages, 2)
+            try:
+                paginated_messages = paginator.page(page)
+            except EmptyPage:
+                paginated_messages = []
+            serializer = MessageSerializer(paginated_messages, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+        serializer = MessageSerializer(messages[:20], many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
 
-        return Response(
-            {
-                "status": True,
-                "data": serializer.data
-            },
-            status=status.HTTP_200_OK
-        )
+
 
 
 class Index(APIView):

@@ -32,11 +32,11 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'daphne',
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'user.apps.UserConfig',
     'chat.apps.ChatConfig',
-    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

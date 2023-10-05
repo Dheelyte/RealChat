@@ -83,10 +83,10 @@
             }
         };
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
+        document.querySelector('#chat-message-submit').onclick = async function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({
+            await chatSocket.send(JSON.stringify({
                 'type': 'message',
                 'text': message,
                 'sender': user.username
