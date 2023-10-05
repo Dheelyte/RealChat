@@ -25,5 +25,4 @@ class TokenAuthMiddleWare:
         token = query_dict["token"][0]
         user = await get_user(token)
         scope["user"] = user
-        print(scope)
         return await self.app(scope, receive, send)

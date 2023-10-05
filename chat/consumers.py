@@ -23,8 +23,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         # Get the other user's username in the URL
         other_user_name = self.scope["url_route"]["kwargs"]["other_user"]
         
-        await self.check_user_exist(other_user_name)        
         self.current_user = self.scope['user']
+        self.other_user = await self.check_user(other_user_name, self.current_user.username)
 
         self.room = await self.join_or_create_room(self.other_user, self.current_user)
 
@@ -88,13 +88,16 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         })
 
     @database_sync_to_async
-    def check_user_exist(self, username):
+    def check_user(self, other_user, current_user):
         """
         Check if the username from the URL exists.
         If it doesn't, raise an exception
         """
 
-        self.other_user = User.objects.get(username=username)
+        if other_user != current_user:    
+            user = User.objects.get(username=other_user) 
+            return user
+        raise PermissionError
 
     @database_sync_to_async
     def join_or_create_room(self, other_user, current_user):

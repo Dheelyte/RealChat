@@ -1,10 +1,16 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer
+from .models import ReportUser, BlockUser
+
+
+User = get_user_model()
+
 
 class SignUp(APIView):
     """Sign up a user"""
@@ -19,13 +25,11 @@ class SignUp(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LogIn(APIView):
-    """Log in a user"""
+    """Logs in a user"""
 
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        print(request.data.get('username'))
-        print(request.data.get('username'))
         try:
             user = authenticate(
                 username=request.data.get('username'),
@@ -34,15 +38,10 @@ class LogIn(APIView):
         except:
             user = None
         if not user:
-            return Response({
-                "error": "Invalid login details"
-            }, status=status.HTTP_400_BAD_REQUEST)
-        token = Token.objects.get(user=user)
+            return Response({"error": "Invalid login details"}, status=status.HTTP_400_BAD_REQUEST)
+        token, _ = Token.objects.get_or_create(user=user)
         serializer = UserSerializer(user)
-        return Response({
-            "token": token.key,
-            "user": serializer.data
-        })
+        return Response({"token": token.key, "user": serializer.data})
 
 
 class LogOut(APIView):
@@ -56,3 +55,56 @@ class LogOut(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
 
+class Report(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        if user != request.user:
+            ReportUser.objects.get_or_create(reported_user=user, reported_by_user=request.user)
+            return Response({"message": "User has been reported"}, status=status.HTTP_200_OK)
+
+
+
+class Block(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        if BlockUser.objects.filter(blocked_user=request.user, blocked_by_user=user).exists():
+            return Response(
+                {"error": "You have been blocked by this user"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return Response(status=status.HTTP_200_OK)
+
+
+    def post(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        if user != request.user:
+            BlockUser.objects.get_or_create(blocked_user=user, blocked_by_user=request.user)
+            return Response({"message": "User has been blocked"}, status=status.HTTP_200_OK)
+
+
+class Unblock(APIView):
+
+    def post(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            BlockUser.objects.get(blocked_user=user, blocked_by_user=request.user).delete()
+        except BlockUser.DoesNotExist:
+            return Response({"error": "An error occurred"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "User has been unblocked"}, status=status.HTTP_200_OK)
