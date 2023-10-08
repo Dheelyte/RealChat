@@ -1,5 +1,3 @@
-from django.contrib.humanize.templatetags.humanize import naturaltime
-
 from rest_framework import serializers
 from user.serializers import UserSerializer
 from .models import (

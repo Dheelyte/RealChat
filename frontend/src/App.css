@@ -1,0 +1,39 @@
+.chat-log {
+  height: 75vh; padding: 10px;
+  border: 2px solid blueviolet; border-radius: 5px;
+  overflow-y: scroll;
+}
+.chat-message {
+  display: flex; gap: 5px
+}
+.chat-message-input {
+  height: 30px; box-sizing: border-box;
+  width: 100%; border-radius: 5px;
+  margin-bottom: 10px; border: 2px solid blueviolet;
+}
+.chat-message-submit {
+  height: 30px; background-color: blueviolet; border-radius: 5px;
+  padding: 0px 10px; color: #fff; border: none; float: right;
+}
+.message {
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+  display: table;
+}
+.message-sent {
+  background-color: blueviolet;
+  margin: 5px 0px auto auto
+}
+.message-received {
+  background-color: gray;
+  margin: 5px auto auto 0px;
+}
+.timestamp-sent {
+  display: table;
+  margin: 5px 0px auto auto
+}
+.timestamp-received {
+  display: table;
+  margin: 5px auto auto 0px;
+}
