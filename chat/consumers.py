@@ -1,13 +1,14 @@
+from datetime import datetime
+from django.utils import timezone
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
-
-from django.db.models import Q
 
 from chat.models import (
     Room,
     User,
     Message,
 )
+
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
@@ -62,7 +63,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     "type": f"chat.{type}",
                     "text": text,
                     "sender": sender,
-                    #"receiver": self.other_user.username
+                    "timestamp": timezone.now().isoformat(),
                 }
             )
 
@@ -81,10 +82,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """
 
         # Get message from chat.message event
-        text, sender = event["text"], event["sender"]
         await self.send_json({
-            "text": text,
-            "sender": sender
+            "type": event["type"],
+            "text": event["text"],
+            "sender": event["sender"],
+            "timestamp": event["timestamp"]
         })
 
     @database_sync_to_async

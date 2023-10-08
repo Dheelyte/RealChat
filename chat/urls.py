@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     Rooms,
     RoomMessages,
+    UnreadMessages,
     Index,
     index,
     room
@@ -12,6 +13,7 @@ from .views import (
 urlpatterns = [
     path("rooms/", Rooms.as_view()),
     path("rooms/<int:room_id>/messages/", RoomMessages.as_view()),
+    path("unread/", UnreadMessages.as_view()),
     
     path("", index, name="index"),
     path('index/', Index.as_view()),
