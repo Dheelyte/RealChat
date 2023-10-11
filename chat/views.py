@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage
-from django.db.models import Subquery, OuterRef, F, Q
+from django.db.models import Subquery, OuterRef
+from django.contrib.auth import get_user_model
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -10,6 +11,8 @@ from rest_framework import status
 from chat.models import Room, Message
 
 from .serializers import RoomSerializer, MessageSerializer
+
+User = get_user_model()
 
 
 class Rooms(APIView):
@@ -35,11 +38,12 @@ class RoomMessages(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, room_id: int):
-        try:
-            room = Room.objects.get(id=room_id, users=request.user)
-        except Room.DoesNotExist:
+    def get(self, request, other_user: int):
+        other_user = User.objects.get(username=other_user)
+        room_query_set = Room.objects.filter(users=other_user).filter(users=request.user)
+        if not room_query_set.exists():
             return Response({"error": "An error occurred"}, status=status.HTTP_404_NOT_FOUND)
+        room = room_query_set.first()
         messages = Message.objects.filter(room=room)
         page = request.query_params.get('page')
         if page:
@@ -51,7 +55,7 @@ class RoomMessages(APIView):
             serializer = MessageSerializer(paginated_messages, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
             
-        serializer = MessageSerializer(messages[:20], many=True)
+        serializer = MessageSerializer(messages[:30], many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 

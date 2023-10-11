@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.utils import timezone
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -10,7 +9,6 @@ from chat.models import (
 )
 
 
-
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     """
     Asynchronous consumer class for handling chats and messages
@@ -18,21 +16,21 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
         """
-        Connect to a channel room group
+        Connect to a channel room group after performing some checks
         """
 
-        # Get the other user's username in the URL
         other_user_name = self.scope["url_route"]["kwargs"]["other_user"]
-        
+
         self.current_user = self.scope['user']
         self.other_user = await self.check_user(other_user_name, self.current_user.username)
 
         self.room = await self.join_or_create_room(self.other_user, self.current_user)
-
         self.room_group_id = f"room_{self.room.id}"
         await self.channel_layer.group_add(self.room_group_id, self.channel_name)
 
         await self.accept()
+
+        await self.read_messages(self.room)
 
     async def disconnect(self, close_code):
         """
@@ -41,21 +39,18 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         pass
         
-
     async def receive_json(self, data):
         """
         Receives data from the websocket in json format,
         then sends it to the room group
         """
 
-        text = data.get("text")
         type = data.get("type")
+        text = data.get("text")
         sender = data.get("sender")
       
         if type == "message":
-            # Save the message to the database
             await self.save_message(text)
-
             # Send received message to the room grop
             await self.channel_layer.group_send(
                 self.room_group_id,
@@ -66,15 +61,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     "timestamp": timezone.now().isoformat(),
                 }
             )
-
-    @database_sync_to_async
-    def save_message(self, text):
-        Message.objects.create(
-            text=text,
-            sender=self.current_user,
-            receiver=self.other_user,
-            room=self.room,
-        )
 
     async def chat_message(self, event):
         """
@@ -88,6 +74,27 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             "sender": event["sender"],
             "timestamp": event["timestamp"]
         })
+    
+    @database_sync_to_async
+    def save_message(self, text):
+        """
+        Save a message to the database
+        """
+
+        Message.objects.create(
+            text=text,
+            sender=self.current_user,
+            receiver=self.other_user,
+            room=self.room,
+        )
+
+    @database_sync_to_async
+    def read_messages(self, room):
+        """
+        Update messages to seen
+        """
+
+        Message.objects.filter(room=room).update(seen=True)
 
     @database_sync_to_async
     def check_user(self, other_user, current_user):

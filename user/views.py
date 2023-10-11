@@ -53,6 +53,16 @@ class LogOut(APIView):
             return Response(status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class Search(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        search_term = request.GET.get('search_term')
+        users = User.objects.filter(username__startswith=search_term)
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
         
 
 class Report(APIView):

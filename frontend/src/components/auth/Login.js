@@ -6,13 +6,7 @@ import { useLocation, useNavigate  } from 'react-router-dom'
 
 const Login = () => {
     const navigate = useNavigate();
-    const { user, login } = useAuth();
-
-    useEffect(() => {
-        if (user) {
-            navigate('/messages');
-        }
-    }, [user, navigate]);
+    const { login } = useAuth();
 
     const location = useLocation();
     const { newUser } = location.state ?? { newUser: false };
@@ -62,7 +56,7 @@ const Login = () => {
 
     useEffect(() => {
         if (isSubmitted) {
-            navigate('/messages');
+            navigate('/');
         }
     }, [isSubmitted, navigate]);
 
@@ -75,6 +69,7 @@ const Login = () => {
                         <h3>Sign up was successful. You can now log in</h3>
                     )
                 }
+                <div className="error">{formErrors["error"]}</div>
                 <form onSubmit={handleLogin}>
                     <div className="input-container">
                         <label>Username </label>

@@ -1,83 +1,113 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import Search from './Search';
 import Api from '../Api';
+import seen from '../../images/seen.svg'
+import unseen from '../../images/unseen.svg'
+import user1 from '../../images/user1.svg'
+import user2 from '../../images/user2.svg'
+import user4 from '../../images/user4.svg'
 
 
 const Messages = () => {
-    const navigate = useNavigate()
+    //const navigate = useNavigate()
     const { user, logout } = useAuth();
+    const [chats, setChats] = useState([])
+    const [unread, setUnread] = useState(0)
+    const [loading, setLoading ] = useState(true)
 
-    useEffect(() => {
-        !user && navigate('/login');
-    }, [user, navigate]);
+    const userImages = [user1, user2, user4];
 
-    useEffect(() => {
-        // Connect to WebSocket when user becomes available (not null)
-        if (user) {
-            connectWebSocket(user.token);
-            console.log(user)
-        }
-    }, [user]);
-
-    const [socket, setSocket] = useState(null);
-
-    const connectWebSocket = (token) => {
-        const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/delight/?token=${token}`);
-        setSocket(newSocket);
-    
-        newSocket.onopen = () => {
-          console.log('Connected to WebSocket!');
-        };
-    
-        newSocket.onclose = () => {
-          console.log('WebSocket connection closed.');
-        };
-    
-        // You can also handle other WebSocket events like onmessage, onerror, etc.
+    const randomImage = () => {
+        const randomIndex = Math.floor(Math.random() * userImages.length);
+        return userImages[randomIndex];
       };
 
-    
+    useEffect(() => {
+        async function fetchChats () {
+            if (user) {
+                const chats = await Api.get('/chat/rooms/', {
+                    headers: {
+                        'Authorization': `Token ${user.token}`
+                    }
+                })
+                setLoading(false)
+                setChats(chats.data.data)
 
-    const handleLogout = async () => {
-        if (socket) {
-            socket.close();
-          }
-        try {
-        await Api.post('user/logout/', {}, {
-            headers: {
-                'Authorization': `Token ${user.token}`
+                const unreadMesssages = await Api.get('/chat/unread/', {
+                    headers: {
+                        'Authorization': `Token ${user.token}`
+                    }
+                })
+                setUnread(unreadMesssages.data.unread)
             }
-        })
-        logout();
-        navigate('/login');
-        } catch {
-
         }
-    }
+        fetchChats();
+    }, [user]);
+    
     
     return (
-        <div className='messge'>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h1>Messages</h1>
-            { user ? (
-                <>
-                    <p>Welcome, {user.user.username}!</p>
-                    <button onClick={handleLogout}>Logout</button>
-                </>
-                ) : (
-                    <p>You are not logged In</p>
-                )
-            }
-            </div>
-
-        <div id="chat-log" className='chat-log'></div><br />
-            <div className='chat-message'>
-            <input id="chat-message-input" type="text" size="100" className='chat-message-input' /><br />
-            <input id="chat-message-submit" type="button" value="Send" className='chat-message-submit' />
-        </div>
+        <>
             
-        </div>
+            <div className='container'>
+                <div className='chats-container'>
+                    <div className='title-unread-div'>
+                        <h1>Chats</h1>
+                        {
+                            //unread !== 0 &&
+                            <span className='unread'>{unread}</span>
+                        }
+                    </div>
+                    {!<button onClick={logout}>Log out</button>}
+                    <p className='welcome'>Welcome, {user.user.username}</p>
+
+                    <Search />
+                    
+                    {loading && (<div class="custom-loader"></div>)}
+
+                    {
+                        chats.map(chat => {
+                            const timestampFormat = {
+                                hour: 'numeric',
+                                minute: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour12: true
+                            }
+                            const formattedTimestamp = new Date(chat.last_message.timestamp).toLocaleString(undefined, timestampFormat)
+                            return (
+                                <div key={chat.id} className='chat-div'>
+                                    <div className='chat-image'>
+                                        <img src={randomImage()} alt='' />
+                                    </div>
+                                    <div className='chat-details'>
+                                        <p className='chat-user'>{chat.other_user.username}</p>
+                                        <div className='chat-meta'>
+                                            {
+                                                chat.last_message.text && (
+                                                <div className='last-message'>
+                                                    <p className='text'>{chat.last_message.text}</p>
+                                                    <div className='last-message-time-seen'>
+                                                        <span className='time'>{chat.last_message.timestamp && formattedTimestamp}</span>
+                                                        <span className='seen'>{chat.last_message.seen ? (
+                                                            <img src={seen} alt='' />
+                                                        ) : (<img src={unseen} alt='' />)}</span>
+                                                    </div>
+                                                </div>
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+                                    <Link className='chat-link' to={chat.other_user.username}></Link>
+                                </div>
+                            )
+                        })
+                    }
+                </div>
+                <Outlet />
+            </div>
+        </>
     )
 }
 

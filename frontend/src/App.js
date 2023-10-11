@@ -4,6 +4,8 @@ import { AuthProvider } from './components/auth/AuthContext';
 import Home from './components/Home';
 import Signup from './components/auth/Signup';
 import Login from './components/auth/Login';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import DefaultChat from './components/core/DefaultChat';
 import Messages from './components/core/Messages';
 import MessageDetail from './components/core/MessageDetail';
 
@@ -13,11 +15,13 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/:username" element={<MessageDetail />} />
+        <Route path="/" element={<ProtectedRoute><Messages /></ProtectedRoute>}>
+          <Route index element={<DefaultChat />} />
+          <Route path=":username" element={<ProtectedRoute><MessageDetail /></ProtectedRoute>} />
+        </Route>
       </Routes>
     </AuthProvider>
   );

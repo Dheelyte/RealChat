@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
     online = models.PositiveIntegerField(default=0)
 
     def __str__(self) -> str:
-        return self.email
+        return self.username
     
 
 class ReportUser(models.Model):
