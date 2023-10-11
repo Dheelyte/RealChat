@@ -7,6 +7,7 @@ from .models import (
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.ReadOnlyField(source='sender.username')
 
     class Meta:
         model = Message
@@ -15,12 +16,11 @@ class MessageSerializer(serializers.ModelSerializer):
             'seen',
             'timestamp',
             'sender',
-            'receiver',
         )
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['timestamp'] = instance.timestamp.strftime("%b %d %I:%M %p")
+        representation['timestamp'] = instance.timestamp.isoformat()
         return representation
 
 

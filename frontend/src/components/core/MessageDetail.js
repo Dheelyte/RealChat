@@ -1,25 +1,64 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import Api from '../Api';
+import send from '../../images/send.svg'
+import options from '../../images/options.svg'
 
 const MessageDetail = () => {
-    const navigate = useNavigate();
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const params = useParams();
+    const navigate = useNavigate()
     const other_user = params.username;
     console.log(params.username);
+
+    const bottomRef = useRef(null);
+    const messageInputRef = useRef(null);
 
     const MAX_RETRIES = 3; // Define the maximum number of retries
     const [message, setMessage] = useState(null)
     const [messages, setMessages] = useState([])
+    const [loading, setLoading ] = useState(true)
+    const [showOptions, setShowOptions ] = useState(false)
+
+    messageInputRef.current?.focus();
+    
+    useEffect(() => {
+        scrollToLatestMessage();
+    }, [messages])
+    
 
     useEffect(() => {
+        console.log('=====================selected chat');
+        console.log('=====================from fetchData', other_user);
+        const fetchData = async () => {
+            try {
+              const response = await Api.get(`chat/rooms/${other_user}/messages/`, {
+                headers: {
+                  'Authorization': `Token ${user.token}`
+                }
+              });
+              setLoading(false)
+              setMessages(response.data);
+              console.log(response.data);
+            } catch (error) {
+              console.error('Error fetching data:', error);
+            }
+        }
+        other_user && fetchData();
+    }, [user, other_user]);
+      
+
+    useEffect(() => {
+
         const connectWebSocket = (token, other_user, retryCount = 0) => {
             const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${other_user}/?token=${token}`);
+
             newSocket.onopen = () => {
                 console.log('Connected to WebSocket!');
+                return;
             };
+
             newSocket.onclose = () => {
                 console.log('WebSocket connection closed.');
                 if (retryCount < MAX_RETRIES) {
@@ -46,6 +85,19 @@ const MessageDetail = () => {
                 }
                 return newSocket;
             });
+
+            const handleMessageReceived = (message) => {
+                const utcTimestamp = new Date(message.timestamp);
+                const localTimestamp = utcTimestamp.toLocaleString();
+        
+                const newMessage = {
+                    text: message.text,
+                    sender: message.sender, // You may want to adjust this based on your data
+                    timestamp: localTimestamp
+                };
+                setMessages((prevMessages) => [newMessage, ...prevMessages]);
+                scrollToLatestMessage()
+            };
         };
 
         // Connect to WebSocket when user becomes available (not null)
@@ -61,19 +113,16 @@ const MessageDetail = () => {
         setMessage(event.target.value)
     }
 
-    const handleMessageReceived = (message) => {
-        const utcTimestamp = new Date(message.timestamp);
-        const localTimestamp = utcTimestamp.toLocaleString();
-
-        const newMessage = {
-            text: message.text,
-            sender: message.sender, // You may want to adjust this based on your data
-            timestamp: localTimestamp
-        };
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+    const scrollToLatestMessage = () => {
+        bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+        // const { offsetHeight, scrollHeight, scrollTop } = messagesContainerRef.current
+        // if (scrollHeight <= scrollTop + offsetHeight + 100) {
+        //     messagesContainerRef.current?.scrollTo(0, scrollHeight)
+        // }
     };
 
-    const handleSendMessage = async () => {
+
+    const handleSendMessage = () => {
         console.log(message)
         if (chatSocket) {
             chatSocket.send(
@@ -86,60 +135,76 @@ const MessageDetail = () => {
         }
     };
 
-    const handleLogout = async () => {
-        if (chatSocket) {
-            chatSocket.close();
-        }
+    const handleReportUser = async () => {
+        handleShowOptions()
         try {
-            await Api.post('user/logout/', {}, {
-                headers: {
-                    Authorization: `Token ${user.token}`,
-                },
+            const response = await Api.post(`user/report/${other_user}/`, {}, {
+              headers: {
+                'Authorization': `Token ${user.token}`
+              }
             });
-            logout();
-            navigate('/login');
-        } catch (error) {
-            // Handle error
-        }
-    };
+            console.log(response.data.message);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+    }
+
+    const handleShowOptions = () => {
+        setShowOptions(prev => !prev)
+    }
+
+    const handleGoBack = () => {
+        navigate(-1);
+    }
 
     return (
-        <div className='messge'>
-            <div className='messge'>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1>{other_user}</h1>
-            { user ? (
-                <>
-                    <p>Welcome, {user.user.username}!</p>
-                    <button onClick={handleLogout}>Logout</button>
-                </>
-                ) : (
-                    <p>You are not logged In</p>
-                )
-            }
+        <div className='messages-container'>
+            <div className='user-header'>
+                <div className='user-header-title'>
+                    <span onClick={handleGoBack} className='back'>‹</span>
+                    <h3>{other_user}</h3>
+                </div>
+                <div onClick={handleShowOptions} className='header-options'>
+                    <img src={options} alt='' />
+                </div>
+                {
+                    showOptions && (
+                    <div className='header-action'>
+                        <li onClick={handleReportUser}>Report</li>
+                    </div>)
+                }
             </div>
 
-        <div id="chat-log" className='chat-log'>
+            <div id="chat-log" className='chat-log'>
+            {loading && (<div class="custom-loader"></div>)}
+            
             {
-                messages.map(message => {
-                    const textStyle = message.sender === user.user.username ? "message message-sent" : "message message-received";
-                    const timestampStyle = message.sender === user.user.username ? "timestamp-sent" : "timestamp-received";
-                    
+                messages.toReversed().map(message => {
+                    const textStyle = message.sender === user.user.username ? "message sent" : "message received";
+                    //const timestampStyle = message.sender === user.user.username ? "timestamp-sent" : "timestamp-received";
+                    const timestampFormat = {
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        hour12: true
+                    }
+                    const formattedTimestamp = new Date(message.timestamp).toLocaleString(undefined, timestampFormat)
                     return (
-                        <>
-                            <p className={textStyle}>{message.text}</p>
-                            <p className={timestampStyle}>{message.timestamp}</p>
-                        </>
+                        <div className={textStyle}>
+                            <p>{message.text}</p>
+                            <small>{formattedTimestamp}</small>
+                        </div>
                     )
                 })
             }
-        </div><br />
+            <div ref={bottomRef} />
+        </div>
         <div className='chat-message'>
-            <input onChange={handleInputChange} id="chat-message-input" type="text" size="100" className='chat-message-input' /><br />
-            <input onClick={handleSendMessage} id="chat-message-submit" type="button" value="Send" className='chat-message-submit' />
+            <input onChange={handleInputChange} ref={messageInputRef} id="chat-message-input" type="text" placeholder='Type a message...' className='chat-message-input' />
+            <button onClick={handleSendMessage} id="chat-message-submit" type="button" className='chat-message-submit'>
+                <img src={send} alt='' />
+            </button>
         </div>
             
-        </div>
         </div>
     );
 };

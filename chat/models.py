@@ -13,7 +13,6 @@ class Room(models.Model):
 
     def other_user(self, current_user):
         user = self.users.exclude(id=current_user.id).first()
-        print(user)
         return user
 
     def __str__(self) -> str:
@@ -25,7 +24,7 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     sender = models.ForeignKey(User, related_name="sender", blank=True, null=True, on_delete=models.SET_NULL)
     receiver = models.ForeignKey(User, related_name="receiver", blank=True, null=True, on_delete=models.SET_NULL)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, db_index=True)
 
     class Meta:
         ordering = ('-timestamp',)
