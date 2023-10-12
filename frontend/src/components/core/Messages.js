@@ -56,6 +56,18 @@ const Messages = () => {
         }
         fetchChats();
     }, [user]);
+
+    const handleChatClick = (chatId) => {
+        // Mark the chat as read by updating its state
+        const updatedChats = chats.map((chat) => {
+          if (chat.id === chatId) {
+            return { ...chat, last_message: {...chat.last_message, seen: true}};
+          }
+          return chat;
+        });
+    
+        setChats(updatedChats);
+    };
     
     return (
         <>
@@ -92,7 +104,7 @@ const Messages = () => {
                             const formattedTimestamp = new Date(chat.last_message.timestamp)
                             .toLocaleString(undefined, timestampFormat)
                             return (
-                                <div key={chat.id} className='chat-div'>
+                                <div key={chat.id} className='chat-div' onClick={() => handleChatClick(chat.id)}>
                                     <div className='chat-image'>
                                         <img src={userAvatar} alt='' />
                                     </div>
