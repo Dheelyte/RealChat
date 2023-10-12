@@ -10,27 +10,32 @@ const MessageDetail = () => {
     const params = useParams();
     const navigate = useNavigate()
     const other_user = params.username;
-    console.log(params.username);
 
     const bottomRef = useRef(null);
     const messageInputRef = useRef(null);
 
-    const MAX_RETRIES = 3; // Define the maximum number of retries
+    const [chatSocket, setChatSocket] = useState(null);
     const [message, setMessage] = useState(null)
     const [messages, setMessages] = useState([])
     const [loading, setLoading ] = useState(true)
+    const [typing, setTyping ] = useState(false)
     const [showOptions, setShowOptions ] = useState(false)
+    const [previousMessageLoading, setPreviousMessageLoading] = useState(false)
+    const [showPreviousMessage, setShowPreviousMessage] = useState(true)
+    const [previousMessagePage, setPreviousMessagePage] = useState(2)
+    const [online, setOnline] = useState(null)
 
-    messageInputRef.current?.focus();
+    const MAX_RETRIES = 3; // Define the maximum number of retries
+
+    // messageInputRef.current?.focus();
     
-    useEffect(() => {
-        scrollToLatestMessage();
-    }, [messages])
-    
+    const scrollToLatestMessage = () => bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+   
+    // useEffect(() => {
+    //     scrollToLatestMessage()
+    // }, [messages, typing])
 
     useEffect(() => {
-        console.log('=====================selected chat');
-        console.log('=====================from fetchData', other_user);
         const fetchData = async () => {
             try {
               const response = await Api.get(`chat/rooms/${other_user}/messages/`, {
@@ -40,7 +45,7 @@ const MessageDetail = () => {
               });
               setLoading(false)
               setMessages(response.data);
-              console.log(response.data);
+              scrollToLatestMessage();
             } catch (error) {
               console.error('Error fetching data:', error);
             }
@@ -50,7 +55,6 @@ const MessageDetail = () => {
       
 
     useEffect(() => {
-
         const connectWebSocket = (token, other_user, retryCount = 0) => {
             const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${other_user}/?token=${token}`);
 
@@ -72,10 +76,15 @@ const MessageDetail = () => {
 
             newSocket.onmessage = (event) => {
                 // Handle WebSocket messages here
-                const message = JSON.parse(event.data);
-                handleMessageReceived(message);
-                console.log(message)
                 
+                const message = JSON.parse(event.data);
+                if (message.type === "message") {
+                    handleMessageReceived(message);
+                }
+
+                if (message.type === "typing" && message.sender !== user.user.username) {
+                    handleTypingReceived(message);
+                }
             };
 
             // Set chatSocket using a functional update
@@ -87,17 +96,30 @@ const MessageDetail = () => {
             });
 
             const handleMessageReceived = (message) => {
+                setTyping(false)
+
                 const utcTimestamp = new Date(message.timestamp);
                 const localTimestamp = utcTimestamp.toLocaleString();
-        
                 const newMessage = {
                     text: message.text,
                     sender: message.sender, // You may want to adjust this based on your data
                     timestamp: localTimestamp
                 };
+
                 setMessages((prevMessages) => [newMessage, ...prevMessages]);
                 scrollToLatestMessage()
             };
+
+            let handleSetTyping
+            const handleTypingReceived = () => {
+                setTyping(true)
+                scrollToLatestMessage()
+                console.log(handleSetTyping)
+                clearTimeout(handleSetTyping)
+                handleSetTyping = setTimeout(() => {
+                    setTyping(false)
+                }, 5000)
+            }
         };
 
         // Connect to WebSocket when user becomes available (not null)
@@ -107,33 +129,77 @@ const MessageDetail = () => {
         }
     }, [user, other_user]);
 
-    const [chatSocket, setChatSocket] = useState(null);
+
+    useEffect(() => {
+        const getOnlineStatus = async () => {
+            try {
+                const response = await Api.get(`user/online/${other_user}/`, {
+                headers: {
+                    'Authorization': `Token ${user.token}`
+                }
+                });
+                setOnline(response.data.online)
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+        if (user && other_user) {
+            getOnlineStatus();
+        }
+    }, [user, other_user])
+    
 
     const handleInputChange = (event) => {
-        setMessage(event.target.value)
+        setMessage(event.target.value);
+
+        const sendTyping = setTimeout(async () => {
+            if (chatSocket) {
+                await chatSocket.send(
+                    JSON.stringify({
+                        type: 'typing',
+                        sender: user.user.username,
+                    })
+                );
+            }
+        }, 2000)
+        return () => clearTimeout(sendTyping)
     }
 
-    const scrollToLatestMessage = () => {
-        bottomRef.current?.scrollIntoView({behavior: 'smooth'});
-        // const { offsetHeight, scrollHeight, scrollTop } = messagesContainerRef.current
-        // if (scrollHeight <= scrollTop + offsetHeight + 100) {
-        //     messagesContainerRef.current?.scrollTo(0, scrollHeight)
-        // }
-    };
-
-
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         console.log(message)
-        if (chatSocket) {
-            chatSocket.send(
+
+        if (chatSocket && message.trim() !== "") {
+            await chatSocket.send(
                 JSON.stringify({
                     type: 'message',
                     text: message,
                     sender: user.user.username,
                 })
             );
+            messageInputRef.current.value = ""
         }
     };
+
+    const handlePreviousMessages = async () => {
+        try {
+            setPreviousMessageLoading(true)
+            await new Promise(r => setTimeout(r, 5000))
+            const response = await Api.get(`chat/rooms/${other_user}/messages/?page=${previousMessagePage}`, {
+                headers: {
+                    'Authorization': `Token ${user.token}`
+                }
+            })
+            setPreviousMessageLoading(false)
+            if (response.data.length === 0) {
+                setShowPreviousMessage(false)
+            } else {
+                setMessages(prevMessages => [...prevMessages, ...response.data])
+                setPreviousMessagePage(prev => prev + 1);
+            }
+        } catch {
+            setPreviousMessageLoading(false)
+        }
+    }
 
     const handleReportUser = async () => {
         handleShowOptions()
@@ -143,7 +209,7 @@ const MessageDetail = () => {
                 'Authorization': `Token ${user.token}`
               }
             });
-            console.log(response.data.message);
+            console.log(response.data)
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -162,7 +228,10 @@ const MessageDetail = () => {
             <div className='user-header'>
                 <div className='user-header-title'>
                     <span onClick={handleGoBack} className='back'>‹</span>
-                    <h3>{other_user}</h3>
+                    <div className='user-online'>
+                        <h3>{other_user}</h3>
+                        <span>{online !== null && (online ? "online" : "offline")}</span>
+                    </div>
                 </div>
                 <div onClick={handleShowOptions} className='header-options'>
                     <img src={options} alt='' />
@@ -176,35 +245,50 @@ const MessageDetail = () => {
             </div>
 
             <div id="chat-log" className='chat-log'>
-            {loading && (<div class="custom-loader"></div>)}
-            
-            {
-                messages.toReversed().map(message => {
-                    const textStyle = message.sender === user.user.username ? "message sent" : "message received";
-                    //const timestampStyle = message.sender === user.user.username ? "timestamp-sent" : "timestamp-received";
-                    const timestampFormat = {
-                        hour: 'numeric',
-                        minute: 'numeric',
-                        hour12: true
-                    }
-                    const formattedTimestamp = new Date(message.timestamp).toLocaleString(undefined, timestampFormat)
-                    return (
-                        <div className={textStyle}>
-                            <p>{message.text}</p>
-                            <small>{formattedTimestamp}</small>
+                { loading && <div className="custom-loader"></div> }
+                
+                { messages.length >= 30 && showPreviousMessage && (
+                    <div className="previous-container">
+                        <div onClick={handlePreviousMessages} className='previous'>
+                            { previousMessageLoading ? <div className="custom-loader custom-loader-2"></div> : "⯅ Load more"}
+                        </div>
+                    </div>
+                    )
+                }
+
+                {
+                    messages.toReversed().map((message, index) => {
+                        const textStyle = message.sender === user.user.username ? "message sent" : "message received";
+                        //const timestampStyle = message.sender === user.user.username ? "timestamp-sent" : "timestamp-received";
+                        const timestampFormat = {
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            hour12: true
+                        }
+                        const formattedTimestamp = new Date(message.timestamp).toLocaleString(undefined, timestampFormat)
+                        return (
+                            <div key={index} className={textStyle}>
+                                <p>{message.text}</p>
+                                <small>{formattedTimestamp}</small>
+                            </div>
+                        )
+                    })
+                }
+                {
+                    typing && (
+                        <div className="message received">
+                            <p>Typing...</p>
                         </div>
                     )
-                })
-            }
-            <div ref={bottomRef} />
-        </div>
-        <div className='chat-message'>
-            <input onChange={handleInputChange} ref={messageInputRef} id="chat-message-input" type="text" placeholder='Type a message...' className='chat-message-input' />
-            <button onClick={handleSendMessage} id="chat-message-submit" type="button" className='chat-message-submit'>
-                <img src={send} alt='' />
-            </button>
-        </div>
-            
+                }
+                <div ref={bottomRef} />
+            </div>
+            <div className='chat-message'>
+                <input onChange={handleInputChange} ref={messageInputRef} id="chat-message-input" type="text" placeholder='Type a message...' className='chat-message-input' />
+                <button onClick={handleSendMessage} id="chat-message-submit" type="button" className='chat-message-submit'>
+                    <img src={send} alt='' />
+                </button>
+            </div>
         </div>
     );
 };

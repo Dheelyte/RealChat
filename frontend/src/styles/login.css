@@ -1,0 +1,78 @@
+* {
+	box-sizing: border-box;
+}
+.body-container {
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.auth-container {
+	position: relative;
+	display: flex;
+	width: 100%;
+	max-width: 800px;
+	-webkit-box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
+	-moz-box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
+	box-shadow: 0px 0px 23px 0px rgba(168,159,168,1);
+}
+.login-container {
+	width: 50%;
+	padding: 100px 50px;
+}
+.overlay-container {
+	text-align: center;
+	background-color: blueviolet;
+	color: #fff;
+	width: 50%;
+	padding: 100px 50px;
+	display: flex;
+}
+.overlay {
+	padding: 50px 10px;
+}
+.body-container .title {
+    margin-bottom: 30px;
+}
+.body-container .error {
+    padding: 10px;
+    background-color: rgb(189, 7, 7);
+    color: #fff;
+    width: 100%;
+	font-size: 13px;
+    margin-bottom: 25px;
+}
+button {
+	border-radius: 20px;
+	border: 1px solid blueviolet;
+	background-color: blueviolet;
+	color: #FFFFFF;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 12px 45px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+    cursor: pointer;
+	transition: transform 80ms ease-in;
+}
+button:active {
+	transform: scale(0.95);
+}
+button:focus {
+	outline: none;
+}
+.button-container {
+	margin-top: 30px;
+}
+.overlay-button {
+	margin-top: 20px;
+	background-color: #fff;
+	color: blueviolet;
+}
+input {
+	background-color: #eee;
+	border: none;
+	padding: 12px 15px;
+	margin: 8px 0;
+	width: 100%;
+}

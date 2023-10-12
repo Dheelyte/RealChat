@@ -63,6 +63,15 @@ class Search(APIView):
         users = User.objects.filter(username__startswith=search_term)
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
+
+
+class OnlineStatus(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, username):
+        online = User.objects.get(username=username).online
+        return Response({"online": online})
+
         
 
 class Report(APIView):
