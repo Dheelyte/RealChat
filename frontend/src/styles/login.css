@@ -10,7 +10,7 @@
 .auth-container {
 	position: relative;
 	display: flex;
-	width: 100%;
+	width: 95%;
 	max-width: 800px;
 	-webkit-box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
 	-moz-box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
@@ -18,18 +18,34 @@
 }
 .login-container {
 	width: 50%;
-	padding: 100px 50px;
+	padding: 80px 40px;
 }
 .overlay-container {
 	text-align: center;
 	background-color: blueviolet;
 	color: #fff;
 	width: 50%;
-	padding: 100px 50px;
+	align-items: center;
 	display: flex;
+	justify-content: center;
 }
 .overlay {
-	padding: 50px 10px;
+	padding: 50px 30px;
+}
+.logo {
+	display: flex;
+	justify-content: center;
+	font-size: 25px;
+	font-weight: bold;
+}
+.logo .real {
+	color: #fff;
+}
+.logo .chat {
+	color: rgb(254, 189, 68);
+}
+.hidden {
+	display: none;
 }
 .body-container .title {
     margin-bottom: 30px;
@@ -65,9 +81,15 @@
 	margin-top: 30px;
 }
 .overlay-button {
-	margin-top: 20px;
-	background-color: #fff;
-	color: blueviolet;
+	margin-top: 20px !important;
+	background-color: #fff !important;
+	color: blueviolet !important;
+	padding: 0px !important;
+}
+.overlay-button a {
+	text-decoration: none;
+	padding: 12px 45px !important;
+	display: block;
 }
 .body-container input {
 	background-color: #eee;
@@ -75,4 +97,22 @@
 	padding: 12px 15px;
 	margin: 8px 0;
 	width: 100%;
+}
+@media screen and (max-width: 650px) {
+	.hidden {
+		display: block;
+	}
+	.hidden .real {
+		color: blueviolet;
+	}
+	.body-container {
+		display: block;
+	}
+	.auth-container {
+		flex-direction: column-reverse;
+		width: 100%;
+	}
+	.login-container, .overlay-container {
+		width: 100%;
+	}
 }

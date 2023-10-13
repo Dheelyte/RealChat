@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import '../../styles/login.css'
 import Api from "../Api";
-import { useLocation, useNavigate  } from 'react-router-dom'
+import { Link, useLocation, useNavigate  } from 'react-router-dom'
 
 
 const Login = () => {
-    document.body.classList.add('login-body');
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -29,13 +28,7 @@ const Login = () => {
             ...formData,
             [name]: value,
         });
-    };
-
-    const renderErrorMessage = (name) =>
-        formErrors[name] && (
-        <div className="error">{formErrors[name].join(", ")}</div>
-    );
-    
+    };    
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -66,7 +59,10 @@ const Login = () => {
         <div className="body-container">
             <div className="auth-container">
                 <div className="login-container">
-            
+                    <span className="logo hidden">
+                        <span className="real">Real</span>
+                        <span className="chat">Chat</span>
+                    </span>
                     <form onSubmit={handleLogin} className="form-container"> 
                         <h1 className="title">Log in</h1>
                         {
@@ -82,8 +78,7 @@ const Login = () => {
                                 onChange={handleInputChange}
                                 required
                             />
-                            {renderErrorMessage("username")}
-                        </div>
+=                        </div>
                         <div className="input-container">
                             <label>Password </label>
                             <input
@@ -92,7 +87,6 @@ const Login = () => {
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 required />
-                            {renderErrorMessage("password")}
                         </div>
                         <div className="button-container">
                             {
@@ -112,9 +106,13 @@ const Login = () => {
                 </div>
                 <div className="overlay-container">
                     <div className="overlay">
-                        <h1>Welcome Back!</h1>
-                        <p>To keep connected with us please login with your personal info</p>
-                        <button className="overlay-button" id="signIn">Sign In</button>
+                        <span className="logo">
+                            <span className="real">Real</span>
+                            <span className="chat">Chat</span>
+                        </span>
+                        <h1>Connect with friends!</h1>
+                        <p>Real-time messaging with end-to-end encryption</p>
+                        <button className="overlay-button" id="signIn"><Link to='/signup'>Sign Up</Link></button>
                     </div>
                 </div>
             </div>

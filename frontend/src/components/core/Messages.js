@@ -60,9 +60,9 @@ const Messages = () => {
     const handleChatClick = (chatId) => {
         // Mark the chat as read by updating its state
         const updatedChats = chats.map((chat) => {
-            if (chat.last_message.seen === false && chat.last_message.sender !== user.user.username) {
-                console.log('before minus')
-                setUnread(prev => prev - 1)
+            if (chat.id === chatId && chat.last_message.seen === false && chat.last_message.sender !== user.user.username) {
+                // Decrease the unread count by one
+                setUnread(prev => prev - 1);
             }
             if (chat.id === chatId) {
                 return { ...chat, last_message: {...chat.last_message, seen: true}};
@@ -81,7 +81,7 @@ const Messages = () => {
                     <div className='title-unread-div'>
                         <h1>Chats</h1>
                         {
-                            //unread !== 0 &&
+                            unread !== 0 &&
                             <span className='unread'>{unread}</span>
                         }
                     </div>
