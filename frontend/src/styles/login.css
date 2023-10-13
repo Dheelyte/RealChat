@@ -42,7 +42,7 @@
 	font-size: 13px;
     margin-bottom: 25px;
 }
-button {
+.body-container button {
 	border-radius: 20px;
 	border: 1px solid blueviolet;
 	background-color: blueviolet;
@@ -55,10 +55,10 @@ button {
     cursor: pointer;
 	transition: transform 80ms ease-in;
 }
-button:active {
+.body-container button:active {
 	transform: scale(0.95);
 }
-button:focus {
+.body-container button:focus {
 	outline: none;
 }
 .button-container {
@@ -69,7 +69,7 @@ button:focus {
 	background-color: #fff;
 	color: blueviolet;
 }
-input {
+.body-container input {
 	background-color: #eee;
 	border: none;
 	padding: 12px 15px;

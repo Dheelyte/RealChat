@@ -31,9 +31,9 @@ const MessageDetail = () => {
     
     const scrollToLatestMessage = () => bottomRef.current?.scrollIntoView({behavior: 'smooth'});
    
-    // useEffect(() => {
-    //     scrollToLatestMessage()
-    // }, [messages, typing])
+    useEffect(() => {
+        scrollToLatestMessage()
+    }, [messages, typing])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -276,12 +276,12 @@ const MessageDetail = () => {
                 }
                 {
                     typing && (
-                        <div className="message received">
+                        <div className="message received typing">
                             <p>Typing...</p>
                         </div>
                     )
                 }
-                <div ref={bottomRef} />
+                <div ref={bottomRef} className='bottom-ref' />
             </div>
             <div className='chat-message'>
                 <input onChange={handleInputChange} ref={messageInputRef} id="chat-message-input" type="text" placeholder='Type a message...' className='chat-message-input' />

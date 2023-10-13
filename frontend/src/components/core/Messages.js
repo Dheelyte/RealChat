@@ -60,9 +60,13 @@ const Messages = () => {
     const handleChatClick = (chatId) => {
         // Mark the chat as read by updating its state
         const updatedChats = chats.map((chat) => {
-          if (chat.id === chatId) {
-            return { ...chat, last_message: {...chat.last_message, seen: true}};
-          }
+            if (chat.last_message.seen === false && chat.last_message.sender !== user.user.username) {
+                console.log('before minus')
+                setUnread(prev => prev - 1)
+            }
+            if (chat.id === chatId) {
+                return { ...chat, last_message: {...chat.last_message, seen: true}};
+            }
           return chat;
         });
     
@@ -99,10 +103,11 @@ const Messages = () => {
                                 minute: 'numeric',
                                 month: 'short',
                                 day: 'numeric',
-                                hour12: true
+                                hour12: false
                             }
                             const formattedTimestamp = new Date(chat.last_message.timestamp)
                             .toLocaleString(undefined, timestampFormat)
+                            const truncatedText = chat.last_message.text.length <= 17 ? chat.last_message.text : chat.last_message.text.slice(0, 15) + "..."
                             return (
                                 <div key={chat.id} className='chat-div' onClick={() => handleChatClick(chat.id)}>
                                     <div className='chat-image'>
@@ -114,7 +119,7 @@ const Messages = () => {
                                             {
                                                 chat.last_message.text && (
                                                 <div className='last-message'>
-                                                    <p className='text'>{chat.last_message.text}</p>
+                                                    <p className='text'>{truncatedText}</p>
                                                     <div className='last-message-time-seen'>
                                                         <span className='time'>{chat.last_message.timestamp && formattedTimestamp}</span>
                                                         {
