@@ -259,7 +259,7 @@
 }
 .chat-log {
   height: calc(100% - 120px);
-  padding: 30px;
+  padding: 15px;
   background-color: #f7f6df;
   overflow-y: scroll;
 }

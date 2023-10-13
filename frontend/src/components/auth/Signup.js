@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate  } from 'react-router-dom'
+import { Link, useNavigate  } from 'react-router-dom'
 import Api from "../Api";
 
 
@@ -58,74 +58,71 @@ const Signup = () => {
     }, [isSubmitted, navigate]);
 
     return (
-        <div className="signup">
-            <div className="container">
-                <h1>Sign Up</h1>
-                <form onSubmit={handleSignup}>
-                    <div className="input-container">
-                        <label>Username </label>
-                        <input
-                            type="text"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleInputChange}
-                            required
-                        />
-                        {renderErrorMessage("username")}
+        <div className="body-container">
+            <div className="auth-container">
+                <div className="login-container">
+                                
+                    <form onSubmit={handleSignup} className="form-container"> 
+                        <h1 className="title">Sign Up</h1>
+                        <div className="input-container">
+                            <label>Username </label>
+                            <input
+                                type="text"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleInputChange}
+                                required
+                            />
+                            {renderErrorMessage("username")}
+                        </div>
+                        <div className="input-container">
+                            <label>Email </label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                required />
+                            {renderErrorMessage("email")}
+                        </div>
+                        <div className="input-container">
+                            <label>Password </label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required />
+                            {renderErrorMessage("password")}
+                        </div>
+                        <div className="button-container">
+                            {
+                                isSubmitting ? (
+                                    <button type="submit" disabled>
+                                        Loading...
+                                    </button>
+                                ) : (
+                                    <button type="submit" >
+                                        Sign Up
+                                    </button>
+                                )
+                            }
+                            
+                        </div>
+                    </form>
+                </div>
+                <div className="overlay-container">
+                    <div className="overlay">
+                        <span className="logo">
+                            <span className="real">Real</span>
+                            <span className="chat">Chat</span>
+                        </span>
+                        <h1>Connect with friends!</h1>
+                        <p>Real-time messaging with end-to-end encryption</p>
+                        <button className="overlay-button" id="signIn"><Link to='/login'>Log In</Link></button>
                     </div>
-                    <div className="input-container">
-                        <label>Email </label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            required
-                        />
-                        {renderErrorMessage("email")}
-                    </div>
-                    <div className="input-container">
-                        <label>Password </label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleInputChange}
-                            required />
-                        {renderErrorMessage("password")}
-                    </div>
-                    <div className="button-container">
-                        {
-                            isSubmitting ? (
-                                <button type="submit" disabled>
-                                    Loading...
-                                </button>
-                            ) : (
-                                <button type="submit" >
-                                    Sign Up
-                                </button>
-                            )
-                        }
-                        
-                    </div>
-                </form>
+                </div>
             </div>
-
-            <div className="form-container sign-up-container">
-		<form action="#">
-			<h1>Create Account</h1>
-			<div className="social-container">
-				<a href="#" className="social"><i className="fab fa-facebook-f"></i></a>
-				<a href="#" className="social"><i className="fab fa-google-plus-g"></i></a>
-				<a href="#" className="social"><i className="fab fa-linkedin-in"></i></a>
-			</div>
-			<span>or use your email for registration</span>
-			<input type="text" placeholder="Name" />
-			<input type="email" placeholder="Email" />
-			<input type="password" placeholder="Password" />
-			<button>Sign Up</button>
-		</form>
-	</div>
         </div>
     )
 }
