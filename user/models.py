@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
 
     email = models.EmailField(max_length=50, unique=True, blank=False, null=False)
     image = models.ImageField(default='DefaultUser.png', upload_to='user_thumbnails')
-    online = models.PositiveIntegerField(default=0)
+    online = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.username

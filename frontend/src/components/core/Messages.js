@@ -5,47 +5,73 @@ import Search from './Search';
 import Api from '../Api';
 import seen from '../../images/seen.svg'
 import unseen from '../../images/unseen.svg'
-import user1 from '../../images/user1.svg'
-import user2 from '../../images/user2.svg'
-import user4 from '../../images/user4.svg'
+import userAvatar from '../../images/user2.svg'
 
 
 const Messages = () => {
-    //const navigate = useNavigate()
+
     const { user, logout } = useAuth();
     const [chats, setChats] = useState([])
     const [unread, setUnread] = useState(0)
     const [loading, setLoading ] = useState(true)
+    const [error, setError] = useState(false)
 
-    const userImages = [user1, user2, user4];
-
-    const randomImage = () => {
-        const randomIndex = Math.floor(Math.random() * userImages.length);
-        return userImages[randomIndex];
-      };
-
+    useEffect(() => {
+        if (user) {
+            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/status/?token=${user.token}`);
+            newSocket.onopen = () => {
+                console.log('Connected to WebSocket!');
+            };
+        }
+    }, [user])
+    
     useEffect(() => {
         async function fetchChats () {
             if (user) {
-                const chats = await Api.get('/chat/rooms/', {
-                    headers: {
-                        'Authorization': `Token ${user.token}`
-                    }
-                })
-                setLoading(false)
-                setChats(chats.data.data)
+                try {
+                    const chats = await Api.get('/chat/rooms/', {
+                        headers: {
+                            'Authorization': `Token ${user.token}`
+                        }
+                    })
+                    setLoading(false)
+                    setChats(chats.data)
+                } catch {
+                    setLoading(false)
+                    setError(true)
+                    console.log('An error occurred')
+                }
 
-                const unreadMesssages = await Api.get('/chat/unread/', {
-                    headers: {
-                        'Authorization': `Token ${user.token}`
-                    }
-                })
-                setUnread(unreadMesssages.data.unread)
+                try {
+                    const unreadMesssages = await Api.get('/chat/unread/', {
+                        headers: {
+                            'Authorization': `Token ${user.token}`
+                        }
+                    })
+                    setUnread(unreadMesssages.data.unread)
+                } catch {
+                    console.log('An error occurred')
+                }
             }
         }
         fetchChats();
     }, [user]);
+
+    const handleChatClick = (chatId) => {
+        // Mark the chat as read by updating its state
+        const updatedChats = chats.map((chat) => {
+            if (chat.last_message.seen === false && chat.last_message.sender !== user.user.username) {
+                console.log('before minus')
+                setUnread(prev => prev - 1)
+            }
+            if (chat.id === chatId) {
+                return { ...chat, last_message: {...chat.last_message, seen: true}};
+            }
+          return chat;
+        });
     
+        setChats(updatedChats);
+    };
     
     return (
         <>
@@ -60,11 +86,15 @@ const Messages = () => {
                         }
                     </div>
                     {!<button onClick={logout}>Log out</button>}
-                    <p className='welcome'>Welcome, {user.user.username}</p>
+                    { user && <p className='welcome'>Welcome, {user.user.username}</p>}
 
                     <Search />
                     
-                    {loading && (<div class="custom-loader"></div>)}
+                    {loading && (<div className="custom-loader"></div>)}
+
+                    {chats.length === 0 && !loading && !error &&
+                        <div className='no-chats'>You have no chats. Search for a user to start chatting.</div>
+                    }
 
                     {
                         chats.map(chat => {
@@ -73,13 +103,15 @@ const Messages = () => {
                                 minute: 'numeric',
                                 month: 'short',
                                 day: 'numeric',
-                                hour12: true
+                                hour12: false
                             }
-                            const formattedTimestamp = new Date(chat.last_message.timestamp).toLocaleString(undefined, timestampFormat)
+                            const formattedTimestamp = new Date(chat.last_message.timestamp)
+                            .toLocaleString(undefined, timestampFormat)
+                            const truncatedText = chat.last_message.text.length <= 17 ? chat.last_message.text : chat.last_message.text.slice(0, 15) + "..."
                             return (
-                                <div key={chat.id} className='chat-div'>
+                                <div key={chat.id} className='chat-div' onClick={() => handleChatClick(chat.id)}>
                                     <div className='chat-image'>
-                                        <img src={randomImage()} alt='' />
+                                        <img src={userAvatar} alt='' />
                                     </div>
                                     <div className='chat-details'>
                                         <p className='chat-user'>{chat.other_user.username}</p>
@@ -87,12 +119,21 @@ const Messages = () => {
                                             {
                                                 chat.last_message.text && (
                                                 <div className='last-message'>
-                                                    <p className='text'>{chat.last_message.text}</p>
+                                                    <p className='text'>{truncatedText}</p>
                                                     <div className='last-message-time-seen'>
                                                         <span className='time'>{chat.last_message.timestamp && formattedTimestamp}</span>
-                                                        <span className='seen'>{chat.last_message.seen ? (
-                                                            <img src={seen} alt='' />
-                                                        ) : (<img src={unseen} alt='' />)}</span>
+                                                        {
+                                                            chat.last_message.sender === user.user.username ? (
+                                                            <span className='seen'>
+                                                                {
+                                                                    chat.last_message.seen ? 
+                                                                    (<img src={seen} alt='' />) :
+                                                                    (<img src={unseen} alt='' />)
+                                                                }
+                                                            </span>) : (
+                                                                !chat.last_message.seen && <span className='unseen'></span>
+                                                            )
+                                                        }
                                                     </div>
                                                 </div>
                                                 )

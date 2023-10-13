@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
+import '../../styles/login.css'
 import Api from "../Api";
 import { useLocation, useNavigate  } from 'react-router-dom'
 
 
 const Login = () => {
+    document.body.classList.add('login-body');
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -61,52 +63,60 @@ const Login = () => {
     }, [isSubmitted, navigate]);
 
     return (
-        <div className="signup">
-            <div className="container">
-                <h1>Log In</h1>
-                {
-                    newUser && (
-                        <h3>Sign up was successful. You can now log in</h3>
-                    )
-                }
-                <div className="error">{formErrors["error"]}</div>
-                <form onSubmit={handleLogin}>
-                    <div className="input-container">
-                        <label>Username </label>
-                        <input
-                            type="text"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleInputChange}
-                            required
-                        />
-                        {renderErrorMessage("username")}
-                    </div>
-                    <div className="input-container">
-                        <label>Password </label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleInputChange}
-                            required />
-                        {renderErrorMessage("password")}
-                    </div>
-                    <div className="button-container">
+        <div className="body-container">
+            <div className="auth-container">
+                <div className="login-container">
+            
+                    <form onSubmit={handleLogin} className="form-container"> 
+                        <h1 className="title">Log in</h1>
                         {
-                            isSubmitting ? (
-                                <button type="submit" disabled>
-                                    Loading...
-                                </button>
-                            ) : (
-                                <button type="submit" >
-                                    Log In
-                                </button>
-                            )
+                            Object.keys(formErrors).length !== 0 &&
+                            <div className="error">{formErrors["error"]}</div>
                         }
-                        
+                        <div className="input-container">
+                            <label>Username </label>
+                            <input
+                                type="text"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleInputChange}
+                                required
+                            />
+                            {renderErrorMessage("username")}
+                        </div>
+                        <div className="input-container">
+                            <label>Password </label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required />
+                            {renderErrorMessage("password")}
+                        </div>
+                        <div className="button-container">
+                            {
+                                isSubmitting ? (
+                                    <button type="submit" disabled>
+                                        Loading...
+                                    </button>
+                                ) : (
+                                    <button type="submit" >
+                                        Log In
+                                    </button>
+                                )
+                            }
+                            
+                        </div>
+                    </form>
+                </div>
+                <div className="overlay-container">
+                    <div className="overlay">
+                        <h1>Welcome Back!</h1>
+                        <p>To keep connected with us please login with your personal info</p>
+                        <button className="overlay-button" id="signIn">Sign In</button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     )

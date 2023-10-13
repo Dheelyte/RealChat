@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Api from "../Api";
+import userImg from '../../images/user2.svg'
 
 
 const Search = () => {
@@ -25,7 +26,7 @@ const Search = () => {
                 } catch {
                     console.log('An error occurred')
                 }
-            }, 2000)
+            }, 1000)
 
             return () => clearTimeout(fetchData)
         } else {
@@ -42,14 +43,20 @@ const Search = () => {
                 type='text'
                 placeholder='Search for RealChat users...'
             />
-            <div className="search-results">
-                {result.map(user => (
-                    <div onClick={handleClear} style={{position: 'relative'}}>
-                        <p>{user.username}</p>
-                        <Link to={user.username} className='chat-link'></Link>
-                    </div>
-                ))}
-            </div>
+
+            { result.length !== 0 && (
+                <div className="search-results">
+                    {result.map((user, key) => (
+                        <div key={key} onClick={handleClear} className="search-user">
+                            <div className='search-image-div'>
+                                <img src={userImg} alt="" />
+                            </div>
+                            <p>{user.username}</p>
+                            <Link to={user.username} className='chat-link'></Link>
+                        </div>
+                    ))}
+                </div>)
+            }
         </div>
     )
 }

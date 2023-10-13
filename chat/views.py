@@ -28,7 +28,7 @@ class Rooms(APIView):
             context={'current_user': current_user},
             many=True
         )
-        return Response({"status": True, "data": serializer.data})
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 class RoomMessages(APIView):
@@ -47,7 +47,7 @@ class RoomMessages(APIView):
         messages = Message.objects.filter(room=room)
         page = request.query_params.get('page')
         if page:
-            paginator = Paginator(messages, 2)
+            paginator = Paginator(messages, 30)
             try:
                 paginated_messages = paginator.page(page)
             except EmptyPage:

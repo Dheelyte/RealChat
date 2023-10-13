@@ -4,9 +4,10 @@ from .views import (
     LogOut,
     SignUp,
     Search,
+    OnlineStatus,
     Block,
     Unblock,
-    Report
+    Report,
 )
 
 urlpatterns = [
@@ -14,6 +15,7 @@ urlpatterns = [
     path('signup/', SignUp.as_view()),
     path('logout/', LogOut.as_view()),
     path('search/', Search.as_view()),
+    path('online/<str:username>/', OnlineStatus.as_view()),
     path('block/<str:username>/', Block.as_view()),
     path('unblock/<str:username>/', Unblock.as_view()),
     path('report/<str:username>/', Report.as_view()),

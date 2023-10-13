@@ -24,5 +24,6 @@ class TokenAuthMiddleWare:
         query_dict = parse_qs(query_params)
         token = query_dict["token"][0]
         user = await get_user(token)
-        scope["user"] = user
+        if user is not None:
+            scope["user"] = user
         return await self.app(scope, receive, send)

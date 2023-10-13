@@ -74,6 +74,45 @@
   outline: 1px solid #E4E4ED;
   box-sizing: border-box;
 }
+.search-results {
+  position: absolute;
+  left: 50%;
+  width: 90%;
+  margin: 12px auto;
+  border: none;
+  outline: 1px solid #E4E4ED;
+  border-radius: 5px;
+  background-color: #fff;
+  transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  -webkit-box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
+  -moz-box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
+  box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
+  z-index: 3;
+}
+.search-user {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #E4E4ED;
+}
+.search-user:hover {
+  background-color: #eef2f5;
+}
+.search-image-div {
+  padding: 5px 6px;
+  background-color: #e6eaeb;
+  border-radius: 50%;
+  margin-left: 15px;
+}
+.search-user p {
+  padding: 15px;
+  margin: 0;
+}
+.no-chats {
+  text-align: center;
+}
 .chat-div {
   border-top: 1px solid #e6e4e4;
   position: relative;
@@ -87,7 +126,7 @@
 }
 .chat-details {
   width: 100%;
-  margin: 0 5px;
+  margin: 0 15px 0 5px;
 }
 .chat-image {
   padding: 10px 12px;
@@ -104,7 +143,7 @@
   width: 25px;
 }
 .chat-user {
-  font-size: 20px;
+  font-size: 18px;
 }
 .chat-link {
   position: absolute;
@@ -114,18 +153,23 @@
   width:100%;
   height: 100%;
 }
-.chat-meta .text {
-  max-width: 40%;
+.unseen {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: blueviolet;
 }
 .last-message {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
 }
 .last-message-time-seen {
   display: flex;
   justify-content: right;
   gap: 5px;
+  align-items: center;
 }
 .default-container {
   display: block;
@@ -146,6 +190,7 @@
   width: 100%;
   height: 100vh;
   position: relative;
+  background-color: #f7f6df;
 }
 .user-header {
   display: flex;
@@ -154,7 +199,7 @@
   width: 100%;
   height: 50px;
   box-sizing: border-box;
-  box-shadow: 5px 0px 0 -1px #888;
+  background-color: #fff;
 }
 .back {
   font-size: 35px;
@@ -195,11 +240,31 @@
 .user-header img {
   width: 5px;
 }
-.chat-log {
-  height: calc(100% - 160px);
+.previous {
+  margin: 10px auto;
+  display: block;
+  width: 100px;
+  background-color: #fff;
   padding: 10px;
+  text-align: center;
+  border-radius: 50px;
+  outline: 2px solid #888;
+  cursor: pointer;
+}
+.previous:hover {
+  background-color: #E4E4ED;
+}
+.user-online {
+  display: block;
+}
+.chat-log {
+  height: calc(100% - 120px);
+  padding: 30px;
   background-color: #f7f6df;
   overflow-y: scroll;
+}
+.bottom-ref {
+  scroll-margin-bottom: 100px;
 }
 .chat-message {
   display: flex;
@@ -207,38 +272,43 @@
   height: 55px;
   padding: 6px 10px;
   align-items: center;
+  background-color: #f7f6df;
 }
 .chat-message-input {
   height: 50px;
   width: 100%;
-  border-radius: 50px;
-  background-color: #f7f6df;
+  border-radius: 10px;
+  background-color: #fff;
   outline: 1px solid #b6b5a6;
   border: none;
-  padding: 0 0 0 20px;
+  padding: 0 20px 0 20px;
+  margin-top: 5px;
   font-size: 16px;
 }
 .chat-message-input:hover {
   outline: 2px solid #b6b5a6;
 }
 .chat-message-submit {
-  height: 70px;
-  border-radius: 50px;
+  height: 50px;
+  width: 50px;
+  border-radius: 10px;
   border: none;
+  padding: 6px;
   background-color: #fff;
+  outline: 1px solid #b6b5a6;
   cursor: pointer;
 }
 .chat-message-submit img {
-  width: 30px;
+  width: 25px;
 }
 .message {
-  padding: 5px 20px;
-  border-radius: 5px;
+  padding: 15px 20px 5px;
   color: white;
+  font-size: 15px;
   display: table;
-  scroll-margin-bottom: 50px;
   border-radius: 20px;
   max-width: 70%;
+  transition: all ease-in-out 0.5s;
 }
 .message p {
   margin: 0 0 3px 0;
@@ -251,19 +321,26 @@
 }
 .sent {
   background-color: blueviolet;
-  margin: 5px 0px auto auto
+  margin: 10px 0px auto auto
 }
 .received {
   background-color: gray;
-  margin: 5px auto auto 0px;
+  margin: 10px auto auto 0px;
 }
-
+.typing {
+  padding-top: 5px !important;
+}
 .custom-loader {
   width: 50px;
   height: 50px;
   display: grid;
   margin: 20px auto;
   animation: s4 4s infinite;
+}
+.custom-loader-2 {
+  width: 21px;
+  height: 21px;
+  margin: 0 auto;
 }
 .custom-loader::before,
 .custom-loader::after {    
