@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import Search from './Search';
 import Api from '../Api';
@@ -11,6 +11,7 @@ import userAvatar from '../../images/user2.svg'
 const Messages = () => {
 
     const { user, logout } = useAuth();
+    const { username } = useParams();
     const [chats, setChats] = useState([])
     const [unread, setUnread] = useState(0)
     const [loading, setLoading ] = useState(true)
@@ -73,82 +74,83 @@ const Messages = () => {
         setChats(updatedChats);
     };
     
-    return (
-        <>
-            
-            <div className='container'>
-                <div className='chats-container'>
-                    <div className='title-unread-div'>
-                        <h1>Chats</h1>
-                        {
-                            unread !== 0 &&
-                            <span className='unread'>{unread}</span>
-                        }
-                    </div>
-                    {!<button onClick={logout}>Log out</button>}
-                    { user && <p className='welcome'>Welcome, {user.user.username}</p>}
-
-                    <Search />
-                    
-                    {loading && (<div className="custom-loader"></div>)}
-
-                    {chats.length === 0 && !loading && !error &&
-                        <div className='no-chats'>You have no chats. Search for a user to start chatting.</div>
-                    }
-
+    return (            
+        <div className='container'>
+            <div className={username ? 'chats-container responsive' : 'chats-container'}>
+                <div className='title-unread-div'>
+                    <h1>Chats</h1>
                     {
-                        chats.map(chat => {
-                            const timestampFormat = {
-                                hour: 'numeric',
-                                minute: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour12: false
-                            }
-                            const formattedTimestamp = new Date(chat.last_message.timestamp)
-                            .toLocaleString(undefined, timestampFormat)
-                            const truncatedText = chat.last_message.text.length <= 17 ? chat.last_message.text : chat.last_message.text.slice(0, 15) + "..."
-                            return (
-                                <div key={chat.id} className='chat-div' onClick={() => handleChatClick(chat.id)}>
-                                    <div className='chat-image'>
-                                        <img src={userAvatar} alt='' />
-                                    </div>
-                                    <div className='chat-details'>
-                                        <p className='chat-user'>{chat.other_user.username}</p>
-                                        <div className='chat-meta'>
-                                            {
-                                                chat.last_message.text && (
-                                                <div className='last-message'>
-                                                    <p className='text'>{truncatedText}</p>
-                                                    <div className='last-message-time-seen'>
-                                                        <span className='time'>{chat.last_message.timestamp && formattedTimestamp}</span>
-                                                        {
-                                                            chat.last_message.sender === user.user.username ? (
-                                                            <span className='seen'>
-                                                                {
-                                                                    chat.last_message.seen ? 
-                                                                    (<img src={seen} alt='' />) :
-                                                                    (<img src={unseen} alt='' />)
-                                                                }
-                                                            </span>) : (
-                                                                !chat.last_message.seen && <span className='unseen'></span>
-                                                            )
-                                                        }
-                                                    </div>
-                                                </div>
-                                                )
-                                            }
-                                        </div>
-                                    </div>
-                                    <Link className='chat-link' to={chat.other_user.username}></Link>
-                                </div>
-                            )
-                        })
+                        unread !== 0 &&
+                        <span className='unread'>{unread}</span>
                     }
                 </div>
+                {!<button onClick={logout}>Log out</button>}
+                { user && <p className='welcome'>Welcome, {user.user.username}</p>}
+
+                <Search />
+                
+                {loading && (<div className="custom-loader"></div>)}
+
+                {chats.length === 0 && !loading && !error &&
+                    <div className='no-chats'>You have no chats. Search for a user to start chatting.</div>
+                }
+
+                {
+                    chats.map(chat => {
+                        // eslint-disable-next-line
+                        if (chat.last_message.text === "") return;
+                        const timestampFormat = {
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour12: false
+                        }
+                        const formattedTimestamp = new Date(chat.last_message.timestamp)
+                        .toLocaleString(undefined, timestampFormat)
+                        const truncatedText = chat.last_message.text.length <= 17 ? chat.last_message.text : chat.last_message.text.slice(0, 15) + "..."
+                        return (
+                            <div key={chat.id} className='chat-div' onClick={() => handleChatClick(chat.id)}>
+                                <div className='chat-image'>
+                                    <img src={userAvatar} alt='' />
+                                </div>
+                                <div className='chat-details'>
+                                    <p className='chat-user'>{chat.other_user.username}</p>
+                                    <div className='chat-meta'>
+                                        {
+                                            chat.last_message.text && (
+                                            <div className='last-message'>
+                                                <p className='text'>{truncatedText}</p>
+                                                <div className='last-message-time-seen'>
+                                                    <span className='time'>{chat.last_message.timestamp && formattedTimestamp}</span>
+                                                    {
+                                                        chat.last_message.sender === user.user.username ? (
+                                                        <span className='seen'>
+                                                            {
+                                                                chat.last_message.seen ? 
+                                                                (<img src={seen} alt='' />) :
+                                                                (<img src={unseen} alt='' />)
+                                                            }
+                                                        </span>) : (
+                                                            !chat.last_message.seen && <span className='unseen'></span>
+                                                        )
+                                                    }
+                                                </div>
+                                            </div>
+                                            )
+                                        }
+                                    </div>
+                                </div>
+                                <Link className='chat-link' to={chat.other_user.username}></Link>
+                            </div>
+                        )
+                    })
+                }
+            </div>
+            <div className={username ? "messages-container" : "messages-container responsive"}>
                 <Outlet />
             </div>
-        </>
+        </div>
     )
 }
 

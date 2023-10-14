@@ -2,8 +2,10 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import Api from '../Api';
+import userImg from '../../images/user2.svg'
 import send from '../../images/send.svg'
 import options from '../../images/options.svg'
+import useOnScreen from './onScreen';
 
 const MessageDetail = () => {
     const { user } = useAuth();
@@ -13,6 +15,8 @@ const MessageDetail = () => {
 
     const bottomRef = useRef(null);
     const messageInputRef = useRef(null);
+    const chatLog = useRef(null);
+    const isVisible = useOnScreen(bottomRef)
 
     const [chatSocket, setChatSocket] = useState(null);
     const [message, setMessage] = useState(null)
@@ -29,10 +33,14 @@ const MessageDetail = () => {
 
     // messageInputRef.current?.focus();
     
-    const scrollToLatestMessage = () => bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+    const scrollToLatestMessage = () => {
+        if (isVisible) {
+            bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+        }
+    }
    
     useEffect(() => {
-        scrollToLatestMessage()
+        scrollToLatestMessage() 
     }, [messages, typing])
 
     useEffect(() => {
@@ -165,6 +173,13 @@ const MessageDetail = () => {
         return () => clearTimeout(sendTyping)
     }
 
+    const handleInputKeyUp = () => {
+        if (messageInputRef.current.scrollHeight <= 150) {
+            messageInputRef.current.style.height = 'auto';
+            messageInputRef.current.style.height = `${messageInputRef.current.scrollHeight}px`;
+        }
+    }
+
     const handleSendMessage = async () => {
         console.log(message)
 
@@ -228,6 +243,9 @@ const MessageDetail = () => {
             <div className='user-header'>
                 <div className='user-header-title'>
                     <span onClick={handleGoBack} className='back'>‹</span>
+                    <div className='search-image-div'>
+                        <img src={userImg} alt="" />
+                    </div>
                     <div className='user-online'>
                         <h3>{other_user}</h3>
                         <span>{online !== null && (online ? "online" : "offline")}</span>
@@ -244,7 +262,7 @@ const MessageDetail = () => {
                 }
             </div>
 
-            <div id="chat-log" className='chat-log'>
+            <div ref={chatLog} className='chat-log'>
                 { loading && <div className="custom-loader"></div> }
                 
                 { messages.length >= 30 && showPreviousMessage && (
@@ -259,13 +277,20 @@ const MessageDetail = () => {
                 {
                     messages.toReversed().map((message, index) => {
                         const textStyle = message.sender === user.user.username ? "message sent" : "message received";
-                        //const timestampStyle = message.sender === user.user.username ? "timestamp-sent" : "timestamp-received";
-                        const timestampFormat = {
+                        const timestamp = new Date(message.timestamp)
+                        let timestampFormat = {
                             hour: 'numeric',
                             minute: 'numeric',
                             hour12: true
                         }
-                        const formattedTimestamp = new Date(message.timestamp).toLocaleString(undefined, timestampFormat)
+                        let oneDayBefore = new Date()
+                        oneDayBefore.setDate(oneDayBefore.getDate() - 1)
+                        if (timestamp <= oneDayBefore){
+                            timestampFormat['month'] = 'short';
+                            timestampFormat['day'] = 'numeric';
+                        }
+                        
+                        const formattedTimestamp = timestamp.toLocaleString(undefined, timestampFormat)
                         return (
                             <div key={index} className={textStyle}>
                                 <p>{message.text}</p>
@@ -277,14 +302,24 @@ const MessageDetail = () => {
                 {
                     typing && (
                         <div className="message received typing">
-                            <p>Typing...</p>
+                            <div className="typing__dot"></div>
+                            <div className="typing__dot"></div>
+                            <div className="typing__dot"></div>
                         </div>
                     )
                 }
                 <div ref={bottomRef} className='bottom-ref' />
             </div>
             <div className='chat-message'>
-                <input onChange={handleInputChange} ref={messageInputRef} id="chat-message-input" type="text" placeholder='Type a message...' className='chat-message-input' />
+                <textarea
+                    onChange={handleInputChange}
+                    ref={messageInputRef}
+                    onKeyUp={handleInputKeyUp}
+                    type="text"
+                    placeholder='Type a message...'
+                    className='chat-message-input'
+                    rows="1"
+                />
                 <button onClick={handleSendMessage} id="chat-message-submit" type="button" className='chat-message-submit'>
                     <img src={send} alt='' />
                 </button>

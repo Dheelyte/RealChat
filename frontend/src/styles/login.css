@@ -22,7 +22,7 @@
 }
 .overlay-container {
 	text-align: center;
-	background-color: blueviolet;
+	background-color: rgb(168, 95, 236);
 	color: #fff;
 	width: 50%;
 	align-items: center;
@@ -60,8 +60,8 @@
 }
 .body-container button {
 	border-radius: 20px;
-	border: 1px solid blueviolet;
-	background-color: blueviolet;
+	border: 1px solid rgb(168, 95, 236);
+	background-color: rgb(168, 95, 236);
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -83,7 +83,7 @@
 .overlay-button {
 	margin-top: 20px !important;
 	background-color: #fff !important;
-	color: blueviolet !important;
+	color: rgb(168, 95, 236) !important;
 	padding: 0px !important;
 }
 .overlay-button a {
@@ -97,13 +97,14 @@
 	padding: 12px 15px;
 	margin: 8px 0;
 	width: 100%;
+	border-radius: 5px;
 }
 @media screen and (max-width: 650px) {
 	.hidden {
 		display: block;
 	}
 	.hidden .real {
-		color: blueviolet;
+		color: rgb(168, 95, 236);
 	}
 	.body-container {
 		display: block;
