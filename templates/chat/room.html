@@ -5,10 +5,10 @@
     <title>Chat Room</title>
 </head>
 <body>
-    <div id="chat-log" style="height: 75vh; padding: 10px; border: 2px solid blueviolet; border-radius: 5px;"></div><br>
+    <div id="chat-log" style="height: 75vh; padding: 10px; border: 2px solid rgb(168, 95, 236); border-radius: 5px;"></div><br>
     <div style="display: flex; gap: 5px">
-    <input id="chat-message-input" type="text" size="100" style="height: 30px; box-sizing: border-box; width: 100%; border-radius: 5px; margin-bottom: 10px; border: 2px solid blueviolet;"><br>
-    <input id="chat-message-submit" type="button" value="Send" style="height: 30px; background-color: blueviolet; border-radius: 5px; padding: 0px 10px; color: #fff; border: none; float: right;">
+    <input id="chat-message-input" type="text" size="100" style="height: 30px; box-sizing: border-box; width: 100%; border-radius: 5px; margin-bottom: 10px; border: 2px solid rgb(168, 95, 236);"><br>
+    <input id="chat-message-submit" type="button" value="Send" style="height: 30px; background-color: rgb(168, 95, 236); border-radius: 5px; padding: 0px 10px; color: #fff; border: none; float: right;">
     </div>
     <h1 style="margin-top: 120px;">Login</h1>
     <input id="username" type="text" size="100"><br>
@@ -63,7 +63,7 @@
             console.log(e.data)
             const p = document.createElement('p')
             p.textContent = data.text
-            p.style.backgroundColor = data.sender === user.username ? "blueviolet" : "grey"
+            p.style.backgroundColor = data.sender === user.username ? "rgb(168, 95, 236)" : "grey"
             p.style.padding = "10px"
             p.style.borderRadius = "5px"
             p.style.color = "white"

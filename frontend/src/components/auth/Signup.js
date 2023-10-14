@@ -61,7 +61,10 @@ const Signup = () => {
         <div className="body-container">
             <div className="auth-container">
                 <div className="login-container">
-                                
+                    <span className="logo hidden">
+                        <span className="real">Real</span>
+                        <span className="chat">Chat</span>
+                    </span>
                     <form onSubmit={handleSignup} className="form-container"> 
                         <h1 className="title">Sign Up</h1>
                         <div className="input-container">

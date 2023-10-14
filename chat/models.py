@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class Room(models.Model):
-    users = models.ManyToManyField(User)
+    users = models.ManyToManyField(User, db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def last_message(self):

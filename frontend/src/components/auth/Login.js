@@ -78,7 +78,7 @@ const Login = () => {
                                 onChange={handleInputChange}
                                 required
                             />
-=                        </div>
+                        </div>
                         <div className="input-container">
                             <label>Password </label>
                             <input
