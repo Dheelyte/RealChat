@@ -20,7 +20,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """
 
         other_user_name = self.scope["url_route"]["kwargs"]["other_user"]
-
         self.current_user = self.scope['user']
         self.other_user = await self.check_user(other_user_name, self.current_user.username)
 
@@ -29,7 +28,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_id, self.channel_name)
 
         await self.accept()
-
         await self.read_messages(self.room)
 
     async def disconnect(self, close_code):
@@ -193,3 +191,83 @@ class OnlineStatusConsumer(AsyncJsonWebsocketConsumer):
         self.user_instance.online = False
         self.user_instance.save()
         print('User set to offline')
+
+
+class ReceiveNotificationConsumer(AsyncJsonWebsocketConsumer):
+
+    async def connect(self):
+        """
+        Connects to a channel room group after performing some checks
+        """
+        self.other_user = self.scope["url_route"]["kwargs"]["other_user"]
+        await self.channel_layer.group_add(self.other_user, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        """
+        Disconnects from a channel room group
+        """
+        pass
+
+    async def receive_json(self, data):
+        """
+        Receives data from the websocket in json format,
+        then sends it to the room group
+        """
+        type = data.get("type")
+        text = data.get("text")
+        sender = data.get("sender")
+      
+        if type == "notification":
+            # Send received message to the room grop
+            await self.channel_layer.group_send(
+                self.other_user,
+                {
+                    "type": f"chat.{type}",
+                    "text": text,
+                    "sender": sender,
+                    "timestamp": timezone.now().isoformat(),
+                }
+            )
+
+    async def chat_notification(self, event):
+        """
+        Sends data of type 'message' to the websocket
+        """
+        # Get message from chat.message event
+        await self.send_json({
+            "type": "notification",
+            "text": event["text"],
+            "sender": event["sender"],
+            "timestamp": event["timestamp"]
+        })
+
+
+class SendNotificationConsumer(AsyncJsonWebsocketConsumer):
+
+    async def connect(self):
+        """
+        Connects to a channel room group after performing some checks
+        """
+        self.current_user = self.scope['user'].username
+        await self.channel_layer.group_add(self.current_user, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        """
+        Disconnects from a channel room group
+        """
+        #await self.channel_layer.group_discard(self.current_user, self.channel_name)
+        pass
+
+    async def chat_notification(self, event):
+        """
+        Sends data of type 'message' to the websocket
+        """
+        # Get message from chat.message event
+        await self.send_json({
+            "type": "notification",
+            "text": event["text"],
+            "sender": event["sender"],
+            "timestamp": event["timestamp"]
+        })
