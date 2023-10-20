@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { useParams, useNavigate } from 'react-router-dom';
 import Api from '../Api';
 import userImg from '../../images/user2.svg'
 import send from '../../images/send.svg'
 import options from '../../images/options.svg'
 import useOnScreen from './onScreen';
+
+const MAX_RETRIES = 3; // Define the maximum number of retries
 
 const MessageDetail = () => {
     const { user } = useAuth();
@@ -19,6 +21,9 @@ const MessageDetail = () => {
     const isVisible = useOnScreen(bottomRef)
 
     const [chatSocket, setChatSocket] = useState(null);
+    const [notificationSocket, setNotificationSocket] = useState(null);
+    const [retryChatCount, setRetryChatCount] = useState(0);
+    const [retryNotificationCount, setRetryNotificationCount] = useState(0);
     const [message, setMessage] = useState(null)
     const [messages, setMessages] = useState([])
     const [loading, setLoading ] = useState(true)
@@ -29,9 +34,6 @@ const MessageDetail = () => {
     const [previousMessagePage, setPreviousMessagePage] = useState(2)
     const [online, setOnline] = useState(null)
 
-    const MAX_RETRIES = 3; // Define the maximum number of retries
-
-    // messageInputRef.current?.focus();
     
     const scrollToLatestMessage = () => {
         if (isVisible) {
@@ -39,6 +41,7 @@ const MessageDetail = () => {
         }
     }
    
+    /* eslint-disable */
     useEffect(() => {
         scrollToLatestMessage() 
     }, [messages, typing])
@@ -56,6 +59,7 @@ const MessageDetail = () => {
               scrollToLatestMessage();
             } catch (error) {
               console.error('Error fetching data:', error);
+              setLoading(false)
             }
         }
         other_user && fetchData();
@@ -63,28 +67,26 @@ const MessageDetail = () => {
       
 
     useEffect(() => {
-        const connectWebSocket = (token, other_user, retryCount = 0) => {
-            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${other_user}/?token=${token}`);
+        const connectChatWebSocket = () => {
+            console.log('RETRY COUNT', retryChatCount);
+            if (retryChatCount >= MAX_RETRIES) {
+                console.log("Max retries reached, giving up.");
+                return;
+            }
+            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${other_user}/?token=${user.token}`);
 
             newSocket.onopen = () => {
-                console.log('Connected to WebSocket!');
-                return;
+                console.log('Connected to Chat WebSocket!');
+                setRetryChatCount(0);
             };
 
             newSocket.onclose = () => {
-                console.log('WebSocket connection closed.');
-                if (retryCount < MAX_RETRIES) {
-                    // Retry the connection after a delay (e.g., 3 seconds)
-                    setTimeout(() => {
-                        console.log(`Retrying WebSocket connection (Attempt ${retryCount + 1})...`);
-                        connectWebSocket(token, other_user, retryCount + 1);
-                    }, 1000); // 3 seconds delay, adjust as needed
-                }
+                console.log('Chat WebSocket connection closed.');
+                setRetryChatCount(retryChatCount + 1);
             };
 
             newSocket.onmessage = (event) => {
                 // Handle WebSocket messages here
-                
                 const message = JSON.parse(event.data);
                 if (message.type === "message") {
                     handleMessageReceived(message);
@@ -94,48 +96,80 @@ const MessageDetail = () => {
                     handleTypingReceived(message);
                 }
             };
-
-            // Set chatSocket using a functional update
+            //setChatSocket(newSocket);
             setChatSocket((prevSocket) => {
                 if (prevSocket) {
-                    prevSocket.close(); // Close the previous socket if it exists
+                    prevSocket.close();
                 }
                 return newSocket;
-            });
-
-            const handleMessageReceived = (message) => {
-                setTyping(false)
-
-                const utcTimestamp = new Date(message.timestamp);
-                const localTimestamp = utcTimestamp.toLocaleString();
-                const newMessage = {
-                    text: message.text,
-                    sender: message.sender, // You may want to adjust this based on your data
-                    timestamp: localTimestamp
-                };
-
-                setMessages((prevMessages) => [newMessage, ...prevMessages]);
-                scrollToLatestMessage()
-            };
-
-            let handleSetTyping
-            const handleTypingReceived = () => {
-                setTyping(true)
-                scrollToLatestMessage()
-                console.log(handleSetTyping)
-                clearTimeout(handleSetTyping)
-                handleSetTyping = setTimeout(() => {
-                    setTyping(false)
-                }, 5000)
-            }
+            })
         };
 
+        const handleMessageReceived = (message) => {
+            setTyping(false)
+
+            const utcTimestamp = new Date(message.timestamp);
+            const localTimestamp = utcTimestamp.toLocaleString();
+            const newMessage = {
+                text: message.text,
+                sender: message.sender, // You may want to adjust this based on your data
+                timestamp: localTimestamp
+            };
+
+            setMessages((prevMessages) => [newMessage, ...prevMessages]);
+            scrollToLatestMessage()
+        };
+
+        let handleSetTyping
+        const handleTypingReceived = () => {
+            setTyping(true)
+            scrollToLatestMessage()
+            console.log(handleSetTyping)
+            clearTimeout(handleSetTyping)
+            handleSetTyping = setTimeout(() => {
+                setTyping(false)
+            }, 5000)
+        }
+
         // Connect to WebSocket when user becomes available (not null)
-        if (user) {
-            connectWebSocket(user.token, other_user);
+        if (user && other_user) {
+            connectChatWebSocket();
             console.log(user);
         }
-    }, [user, other_user]);
+    }, [user, other_user, retryChatCount]);
+
+    
+    useEffect(() => {
+        const connectSendNotificationWebSocket = () => {
+            if (retryNotificationCount >= MAX_RETRIES) {
+                console.log("Max retries reached, giving up.");
+                return;
+            }
+            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/notification/send/${other_user}/?token=${user.token}`)
+            
+            newSocket.onopen = () => {
+                console.log('Connected to Notification WebSocket!');
+                setRetryNotificationCount(0);
+            };
+
+            newSocket.onclose = () => {
+                console.log('Notification socket closed')
+                setRetryNotificationCount(retryNotificationCount + 1);
+            }
+            //setNotificationSocket(newSocket);
+            setNotificationSocket((prevSocket) => {
+                if (prevSocket) {
+                    prevSocket.close();
+                }
+                return newSocket;
+            })
+        };
+
+        if (user && other_user) {
+            connectSendNotificationWebSocket();
+            console.log(user);
+        }
+    }, [user, other_user, retryNotificationCount])
 
 
     useEffect(() => {
@@ -182,6 +216,8 @@ const MessageDetail = () => {
 
     const handleSendMessage = async () => {
         console.log(message)
+        console.log('chat socket', chatSocket)
+        console.log('notification socket', notificationSocket)
 
         if (chatSocket && message.trim() !== "") {
             await chatSocket.send(
@@ -192,6 +228,16 @@ const MessageDetail = () => {
                 })
             );
             messageInputRef.current.value = ""
+        }
+
+        if (notificationSocket && message.trim() !== "") {
+            await notificationSocket.send(
+                JSON.stringify({
+                    type: 'notification',
+                    text: message,
+                    sender: user.user.username,
+                })
+            )
         }
     };
 
@@ -235,7 +281,7 @@ const MessageDetail = () => {
     }
 
     const handleGoBack = () => {
-        navigate(-1);
+        navigate('/');
     }
 
     return (

@@ -22,7 +22,7 @@
 }
 .overlay-container {
 	text-align: center;
-	background-color: rgb(168, 95, 236);
+	background-color: #766DF4;
 	color: #fff;
 	width: 50%;
 	align-items: center;
@@ -60,8 +60,8 @@
 }
 .body-container button {
 	border-radius: 20px;
-	border: 1px solid rgb(168, 95, 236);
-	background-color: rgb(168, 95, 236);
+	border: 1px solid #766DF4;
+	background-color: #766DF4;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -83,13 +83,14 @@
 .overlay-button {
 	margin-top: 20px !important;
 	background-color: #fff !important;
-	color: rgb(168, 95, 236) !important;
+	color: #766DF4 !important;
 	padding: 0px !important;
 }
 .overlay-button a {
-	text-decoration: none;
-	padding: 12px 45px !important;
 	display: block;
+	padding: 12px 45px;
+	text-decoration: none;
+	color: #766DF4
 }
 .body-container input {
 	background-color: #eee;
@@ -104,7 +105,7 @@
 		display: block;
 	}
 	.hidden .real {
-		color: rgb(168, 95, 236);
+		color: #766DF4;
 	}
 	.body-container {
 		display: block;

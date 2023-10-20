@@ -1,7 +1,12 @@
+from datetime import timezone
+from django.http import JsonResponse
+
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Subquery, OuterRef
 from django.contrib.auth import get_user_model
+
+from channels.layers import get_channel_layer
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -22,7 +27,11 @@ class Rooms(APIView):
         """Get all rooms (chats) which the current user is in"""
 
         current_user = request.user
-        rooms = Room.objects.filter(users=current_user)
+        rooms = Room.objects.filter(users=current_user).annotate(
+            last_message_timestamp=Subquery(
+                Message.objects.filter(room=OuterRef('pk')).order_by('-timestamp').values('timestamp')[:1]
+            ),
+        ).order_by('-last_message_timestamp')
         serializer = RoomSerializer(
             rooms,
             context={'current_user': current_user},
@@ -62,9 +71,7 @@ class RoomMessages(APIView):
 class UnreadMessages(APIView):
     def get(self, request):
 
-        rooms_with_last_message = Room.objects.filter(
-            users=request.user
-        ).annotate(
+        rooms_with_last_message = Room.objects.filter(users=request.user).annotate(
             last_message_timestamp=Subquery(
                 Message.objects.filter(room=OuterRef('pk')).order_by('-timestamp').values('timestamp')[:1]
             ),
@@ -83,6 +90,22 @@ class UnreadMessages(APIView):
         ).count()
 
         return Response({"unread": unread})
+    
+
+async def send_message_notification(request, username):
+    message = request.GET["message"]
+    channel_layer = get_channel_layer()
+    channel_name = username
+    await channel_layer.group_add(username)
+    await channel_layer.send(
+        channel_name,
+        {
+            "text": message.text,
+            "sender": message.sender,
+            "timestamp": timezone.now().isoformat(),
+        }
+    )
+    return JsonResponse({"status": True})
 
 
 class Index(APIView):

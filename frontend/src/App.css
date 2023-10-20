@@ -168,7 +168,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: rgb(168, 95, 236);
+  background-color: #766DF4;
 }
 .last-message {
   display: flex;
@@ -369,7 +369,7 @@
   font-size: 15px;
   display: table;
   border-radius: 15px;
-  max-width: 70%;
+  max-width: 80%;
   transition: all 0.3s ease-in-out;
 }
 .message p {
@@ -381,8 +381,8 @@
   font-size: 11px;
 }
 .sent {
-  background-color: rgb(168, 95, 236);
-  margin: 10px 0px auto auto
+  background-color: #766DF4;
+  margin: 10px 0px auto auto;
 }
 .received {
   background-color: gray;
