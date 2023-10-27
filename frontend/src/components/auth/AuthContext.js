@@ -13,13 +13,11 @@ export function AuthProvider({ children }) {
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // Add loading state
-  console.log('From user auth context')
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check local storage or cookies for a persisted user session
     const persistedUser = localStorage.getItem('realchat_user');
-    console.log('local storage from user auth context', persistedUser)
     if (persistedUser) {
       setUser(JSON.parse(persistedUser));
     }

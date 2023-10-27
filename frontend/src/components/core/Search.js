@@ -24,7 +24,7 @@ const Search = () => {
                     const response = await Api.get(`user/search/?search_term=${searchTerm}`)
                     setResult(response.data)
                 } catch {
-                    console.log('An error occurred')
+                    
                 }
             }, 1000)
 

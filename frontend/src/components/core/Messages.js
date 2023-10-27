@@ -7,7 +7,7 @@ import seen from '../../images/seen.svg'
 import unseen from '../../images/unseen.svg'
 import userAvatar from '../../images/user2.svg'
 
-const MAX_RETRIES = 3;
+// const MAX_RETRIES = 3;
 
 const Messages = () => {
 
@@ -15,25 +15,14 @@ const Messages = () => {
     const { username } = useParams();
     const [chats, setChats] = useState([]);
     const [notificationChat, setNotificationChat] = useState(null)
-    const [retryCount, setRetryCount] = useState(0);
+    // const [retryCount, setRetryCount] = useState(0);
     const [unread, setUnread] = useState(0)
     const [loading, setLoading ] = useState(true)
-    const [error, setError] = useState(false)
-
-    useEffect(() => {
-        console.log('Effect chats', chats)
-        console.log('chats has been changed')
-    }, [chats])
-
-    console.log('Re-render chats', chats)
-    
+    const [error, setError] = useState(false)  
 
     useEffect(() => {
         if (user) {
-            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/status/?token=${user.token}`);
-            newSocket.onopen = () => {
-                console.log('Connected to Status WebSocket!');
-            };
+            new WebSocket(`ws://127.0.0.1:8000/ws/status/?token=${user.token}`);
         }
     }, [user])
     
@@ -51,9 +40,7 @@ const Messages = () => {
                 } catch {
                     setLoading(false)
                     setError(true)
-                    console.log('An error occurred')
                 }
-
                 try {
                     const unreadMesssages = await Api.get('/chat/unread/', {
                         headers: {
@@ -62,7 +49,6 @@ const Messages = () => {
                     })
                     setUnread(unreadMesssages.data.unread)
                 } catch {
-                    console.log('An error occurred')
                 }
             }
         }
@@ -72,30 +58,12 @@ const Messages = () => {
     
     useEffect(() => {
         const connectReceiveNotificationWebSocket = () => {
-            console.log('RETRY COUNT', retryCount);
-            if (retryCount >= MAX_RETRIES) {
-                console.log("Max retries reached, giving up.");
-                return;
-            }
+            // if (retryCount >= MAX_RETRIES) {
+            //     return;
+            // }
             const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/notification/receive/?token=${user.token}`);
-            
-            newSocket.onopen = () => {
-                console.log('Connected to Notification WebSocket!');
-                setRetryCount(0);
-            };
-
-            newSocket.onerror = () => {
-                console.log('Websocket error')
-            }
-
-            newSocket.onclose = () => {
-                console.log(`WebSocket connection closed. Retrying...`);
-                setRetryCount(retryCount + 1);
-                //connectSendNotificationWebSocket();
-            }
 
             newSocket.onmessage = (event) => {
-                console.log('New notification message');
                 const message = JSON.parse(event.data);
                 if (message.type === "notification") {
                     setNotificationChat(message)
@@ -105,9 +73,8 @@ const Messages = () => {
 
         if (user) {
             connectReceiveNotificationWebSocket();
-            console.log(user);
         }
-    }, [user, retryCount])
+    }, [user])
 
     /* eslint-disable */
     useEffect(() => {
@@ -118,7 +85,6 @@ const Messages = () => {
 
             const updatedChats = chats.map((chat) => {
                 // Existing chat is updated here
-                console.log('updating chat')
                 if (chat.other_user.username === notificationChat.sender && notificationChat.sender !== username) {
                     chatId = chat.id;
                     return {

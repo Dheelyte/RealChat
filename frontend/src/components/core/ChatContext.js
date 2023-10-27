@@ -14,7 +14,6 @@ export function ChatProvider({ children }) {
   const setChat = (chatId) => {
     // Fetch chat data based on chatId here if needed
     setSelectedChat(chatId);
-    console.log('From chat context: ', chatId)
     if (chatId) setLoading(false); // Set loading to false when authentication check is done
   };
 

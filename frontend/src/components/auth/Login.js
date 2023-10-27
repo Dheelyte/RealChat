@@ -38,14 +38,12 @@ const Login = () => {
                 username: formData.username,
                 password: formData.password,
             });
-            console.log(response.data);
             setIsSubmitting(false);
             setIsSubmitted(true)
             login(response.data);
         } catch(error) {
             setIsSubmitting(false);
             error.response && setFormErrors(error.response.data);
-            error.response && console.log(error.response.data);
         }
     }
 
