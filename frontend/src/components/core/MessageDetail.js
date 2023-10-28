@@ -308,7 +308,7 @@ const MessageDetail = () => {
                         const formattedTimestamp = timestamp.toLocaleString(undefined, timestampFormat)
                         return (
                             <div key={index} className={textStyle}>
-                                <p>{message.text}</p>
+                                <p>{message.text.replace(/\n/g, "<br>")}</p>
                                 <small>{formattedTimestamp}</small>
                             </div>
                         )

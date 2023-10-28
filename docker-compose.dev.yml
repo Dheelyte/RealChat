@@ -22,7 +22,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./:/app
+      - ./frontend:/app
 
   redis:
     image: redis:latest
