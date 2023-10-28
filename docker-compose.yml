@@ -11,6 +11,8 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     environment:
       - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./:/app
 
   frontend:
     build:
@@ -19,8 +21,15 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    volumes:
+      - ./:/app
 
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
