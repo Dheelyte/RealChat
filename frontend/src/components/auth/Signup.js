@@ -36,17 +36,15 @@ const Signup = () => {
         setIsSubmitting(true)
         try {
 
-            const response = await Api.post('user/signup/', {
+            await Api.post('user/signup/', {
                 username: formData.username,
                 email: formData.email,
                 password: formData.password,
             });
-            console.log(response.data);
             setIsSubmitting(false);
             setIsSubmitted(true)
         } catch(error) {
             setFormErrors(error.response.data);
-            console.log(error.response.data)
             setIsSubmitting(false)
         }
     }

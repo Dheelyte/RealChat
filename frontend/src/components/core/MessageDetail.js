@@ -7,7 +7,7 @@ import send from '../../images/send.svg'
 import options from '../../images/options.svg'
 import useOnScreen from './onScreen';
 
-const MAX_RETRIES = 3; // Define the maximum number of retries
+// const MAX_RETRIES = 3; // Define the maximum number of retries
 
 const MessageDetail = () => {
     const { user } = useAuth();
@@ -22,8 +22,8 @@ const MessageDetail = () => {
 
     const [chatSocket, setChatSocket] = useState(null);
     const [notificationSocket, setNotificationSocket] = useState(null);
-    const [retryChatCount, setRetryChatCount] = useState(0);
-    const [retryNotificationCount, setRetryNotificationCount] = useState(0);
+    // const [retryChatCount, setRetryChatCount] = useState(0);
+    // const [retryNotificationCount, setRetryNotificationCount] = useState(0);
     const [message, setMessage] = useState(null)
     const [messages, setMessages] = useState([])
     const [loading, setLoading ] = useState(true)
@@ -68,22 +68,10 @@ const MessageDetail = () => {
 
     useEffect(() => {
         const connectChatWebSocket = () => {
-            console.log('RETRY COUNT', retryChatCount);
-            if (retryChatCount >= MAX_RETRIES) {
-                console.log("Max retries reached, giving up.");
-                return;
-            }
-            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${other_user}/?token=${user.token}`);
-
-            newSocket.onopen = () => {
-                console.log('Connected to Chat WebSocket!');
-                setRetryChatCount(0);
-            };
-
-            newSocket.onclose = () => {
-                console.log('Chat WebSocket connection closed.');
-                setRetryChatCount(retryChatCount + 1);
-            };
+            // if (retryChatCount >= MAX_RETRIES) {
+            //     return;
+            // }
+            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${other_user}/?token=${user.token}`)
 
             newSocket.onmessage = (event) => {
                 // Handle WebSocket messages here
@@ -124,7 +112,6 @@ const MessageDetail = () => {
         const handleTypingReceived = () => {
             setTyping(true)
             scrollToLatestMessage()
-            console.log(handleSetTyping)
             clearTimeout(handleSetTyping)
             handleSetTyping = setTimeout(() => {
                 setTyping(false)
@@ -134,29 +121,17 @@ const MessageDetail = () => {
         // Connect to WebSocket when user becomes available (not null)
         if (user && other_user) {
             connectChatWebSocket();
-            console.log(user);
         }
-    }, [user, other_user, retryChatCount]);
+    }, [user, other_user]);
 
     
     useEffect(() => {
         const connectSendNotificationWebSocket = () => {
-            if (retryNotificationCount >= MAX_RETRIES) {
-                console.log("Max retries reached, giving up.");
-                return;
-            }
+            // if (retryNotificationCount >= MAX_RETRIES) {
+            //     return;
+            // }
             const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/notification/send/${other_user}/?token=${user.token}`)
-            
-            newSocket.onopen = () => {
-                console.log('Connected to Notification WebSocket!');
-                setRetryNotificationCount(0);
-            };
 
-            newSocket.onclose = () => {
-                console.log('Notification socket closed')
-                setRetryNotificationCount(retryNotificationCount + 1);
-            }
-            //setNotificationSocket(newSocket);
             setNotificationSocket((prevSocket) => {
                 if (prevSocket) {
                     prevSocket.close();
@@ -167,9 +142,8 @@ const MessageDetail = () => {
 
         if (user && other_user) {
             connectSendNotificationWebSocket();
-            console.log(user);
         }
-    }, [user, other_user, retryNotificationCount])
+    }, [user, other_user])
 
 
     useEffect(() => {
@@ -215,10 +189,6 @@ const MessageDetail = () => {
     }
 
     const handleSendMessage = async () => {
-        console.log(message)
-        console.log('chat socket', chatSocket)
-        console.log('notification socket', notificationSocket)
-
         if (chatSocket && message.trim() !== "") {
             await chatSocket.send(
                 JSON.stringify({
@@ -270,7 +240,6 @@ const MessageDetail = () => {
                 'Authorization': `Token ${user.token}`
               }
             });
-            console.log(response.data)
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -339,7 +308,7 @@ const MessageDetail = () => {
                         const formattedTimestamp = timestamp.toLocaleString(undefined, timestampFormat)
                         return (
                             <div key={index} className={textStyle}>
-                                <p>{message.text}</p>
+                                <p>{message.text.replace(/\n/g, "<br>")}</p>
                                 <small>{formattedTimestamp}</small>
                             </div>
                         )
