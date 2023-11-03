@@ -8,8 +8,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RealChat.settings')
 
 django_asgi_app = get_asgi_application()
 
-from user.middlewares import TokenAuthMiddleWare
 from chat.routing import websocket_urlpatterns
+from user.middlewares import TokenAuthMiddleWare
 
 application = ProtocolTypeRouter(
     {
