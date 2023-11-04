@@ -318,7 +318,7 @@
   display: flex;
   gap: 5px;
   height: 55px;
-  padding: 6px 10px;
+  padding: 10px 10px 0px;
   align-items: flex-end;
   background-color: #fffff0;
 }
@@ -366,7 +366,7 @@
 .message {
   padding: 5px 20px 5px;
   color: white;
-  font-size: 15px;
+  white-space: pre-wrap;
   display: table;
   border-radius: 15px;
   max-width: 80%;
