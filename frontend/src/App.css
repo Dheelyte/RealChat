@@ -126,6 +126,7 @@ header {
 }
 .no-chats {
   text-align: center;
+  margin-top: 30px;
 }
 .chat-div {
   border-top: 1px solid #e6e4e4;
@@ -208,11 +209,13 @@ header {
   /* display: block; */
   /* width: 100%; */
   flex: 1;
-  height: 100vh;
+  height: calc(100vh);
   position: relative;
   background-color: #fffff0;
 }
 .user-header {
+  position: fixed;
+  top: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -283,6 +286,7 @@ header {
   display: block;
 }
 .chat-log {
+  margin-top: 50px;
   height: calc(100% - 120px);
   padding: 15px 15px 0 15px;
   background-color: #fffff0;

@@ -25,7 +25,15 @@ const Messages = () => {
 
     useEffect(() => {
         if (user) {
-            new WebSocket(`${WS_DOMAIN}/status/?token=${user.token}`);
+            const connectStatusWebSocket = () => {
+                const newSocket = new WebSocket(`${WS_DOMAIN}/status/?token=${user.token}`);
+                newSocket.onclose = () => {
+                    setTimeout(()=>{
+                        connectStatusWebSocket();
+                    }, 5000)
+                }
+            }
+            connectStatusWebSocket();
         }
     }, [user])
     
@@ -71,6 +79,12 @@ const Messages = () => {
                 if (message.type === "notification") {
                     setNotificationChat(message)
                 }
+            }
+
+            newSocket.onclose = () => {
+                setTimeout(() => {
+                    connectReceiveNotificationWebSocket();
+                }, 5000)
             }
         };
 
