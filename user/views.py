@@ -60,7 +60,7 @@ class Search(APIView):
 
     def get(self, request):
         search_term = request.GET.get('search_term')
-        users = User.objects.filter(username__startswith=search_term)
+        users = User.objects.filter(username__istartswith=search_term)
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
