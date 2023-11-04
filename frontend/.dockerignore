@@ -1,4 +1,9 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+__pycache__/
+*.pyc
+env/
+.vscode
+migrations
+db.sqlite3
 
 # dependencies
 /node_modules
