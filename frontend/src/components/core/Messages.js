@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import Header from './Header';
 import Search from './Search';
 import Api from '../Api';
 import seen from '../../images/seen.svg'
@@ -130,7 +131,7 @@ const Messages = () => {
                 // Decrease the unread count by one
                 setUnread(prev => prev - 1);
             }
-            if (chat.id === chatId) {
+            if (chat.id === chatId && chat.last_message.sender !== user.user.username) {
                 return { ...chat, last_message: {...chat.last_message, seen: true}};
             }
             return chat;
@@ -142,6 +143,7 @@ const Messages = () => {
     return (            
         <div className='container'>
             <div className={username ? 'chats-container responsive' : 'chats-container'}>
+                <Header />
                 <div className='title-unread-div'>
                     <h1>Chats</h1>
                     {

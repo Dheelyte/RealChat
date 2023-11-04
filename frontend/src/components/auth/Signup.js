@@ -60,7 +60,7 @@ const Signup = () => {
             <div className="auth-container">
                 <div className="login-container">
                     <span className="logo hidden">
-                        <span className="real">Real</span>
+                        <span className="real">Reel</span>
                         <span className="chat">Chat</span>
                     </span>
                     <form onSubmit={handleSignup} className="form-container"> 
@@ -115,7 +115,7 @@ const Signup = () => {
                 <div className="overlay-container">
                     <div className="overlay">
                         <span className="logo">
-                            <span className="real">Real</span>
+                            <span className="real">Reel</span>
                             <span className="chat">Chat</span>
                         </span>
                         <h1>Connect with friends!</h1>

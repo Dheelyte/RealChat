@@ -6,15 +6,17 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	background-color: rgb(234, 234, 255);
 }
 .auth-container {
 	position: relative;
 	display: flex;
 	width: 95%;
-	max-width: 800px;
-	-webkit-box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
-	-moz-box-shadow: 0px 0px 13px 0px rgba(168,159,168,1);
-	box-shadow: 0px 0px 23px 0px rgba(168,159,168,1);
+	max-width: 900px;
+	background-color: #fff;
+	-webkit-box-shadow: 0px 0px 13px 0px rgb(206, 206, 206);
+	-moz-box-shadow: 0px 0px 13px 0px rgba(206, 206, 206,1);
+	box-shadow: 0px 0px 23px 0px rgba(206, 206, 206,1);
 }
 .login-container {
 	width: 50%;
@@ -53,6 +55,14 @@
 .body-container .error {
     padding: 10px;
     background-color: rgb(189, 7, 7);
+    color: #fff;
+    width: 100%;
+	font-size: 13px;
+    margin-bottom: 25px;
+}
+.body-container .success {
+    padding: 10px;
+    background-color: rgb(8, 170, 43);
     color: #fff;
     width: 100%;
 	font-size: 13px;
