@@ -7,6 +7,8 @@ import send from '../../images/send.svg'
 import options from '../../images/options.svg'
 import useOnScreen from './onScreen';
 
+const WS_DOMAIN = 'wss://reelchat.me/ws';
+
 // const MAX_RETRIES = 3; // Define the maximum number of retries
 
 const MessageDetail = () => {
@@ -71,7 +73,7 @@ const MessageDetail = () => {
             // if (retryChatCount >= MAX_RETRIES) {
             //     return;
             // }
-            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${other_user}/?token=${user.token}`)
+            const newSocket = new WebSocket(`${WS_DOMAIN}/chat/${other_user}/?token=${user.token}`)
 
             newSocket.onmessage = (event) => {
                 // Handle WebSocket messages here
@@ -130,7 +132,7 @@ const MessageDetail = () => {
             // if (retryNotificationCount >= MAX_RETRIES) {
             //     return;
             // }
-            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/notification/send/${other_user}/?token=${user.token}`)
+            const newSocket = new WebSocket(`${WS_DOMAIN}/notification/send/${other_user}/?token=${user.token}`)
 
             setNotificationSocket((prevSocket) => {
                 if (prevSocket) {
