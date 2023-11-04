@@ -200,6 +200,7 @@ const MessageDetail = () => {
                 })
             );
             messageInputRef.current.value = ""
+            messageInputRef.current.style.height = 'auto';
         }
 
         if (notificationSocket && message.trim() !== "") {
@@ -310,7 +311,7 @@ const MessageDetail = () => {
                         const formattedTimestamp = timestamp.toLocaleString(undefined, timestampFormat)
                         return (
                             <div key={index} className={textStyle}>
-                                <p>{message.text.replace(/\n/g, "<br>")}</p>
+                                <p>{message.text.replace(/\\n/g, '\n')}</p>
                                 <small>{formattedTimestamp}</small>
                             </div>
                         )
