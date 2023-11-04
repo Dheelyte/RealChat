@@ -7,7 +7,7 @@ import send from '../../images/send.svg'
 import options from '../../images/options.svg'
 import useOnScreen from './onScreen';
 
-const WS_DOMAIN = 'ws://127.0.0.1:8000/ws';
+const WS_DOMAIN = 'wss://reelchat.me/ws';
 
 // const MAX_RETRIES = 3; // Define the maximum number of retries
 

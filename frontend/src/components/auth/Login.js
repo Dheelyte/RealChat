@@ -11,7 +11,6 @@ const Login = () => {
 
     const location = useLocation();
     const { newUser } = location.state ?? { newUser: false };
-    console.log(newUser)
 
     const [formErrors, setFormErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,11 +57,16 @@ const Login = () => {
             <div className="auth-container">
                 <div className="login-container">
                     <span className="logo hidden">
-                        <span className="real">Real</span>
+                        <span className="real">Reel</span>
                         <span className="chat">Chat</span>
                     </span>
                     <form onSubmit={handleLogin} className="form-container"> 
                         <h1 className="title">Log in</h1>
+                        {
+                            newUser && (
+                                <div className="success">Sign up successful. You can now log in</div>
+                            )
+                        }
                         {
                             Object.keys(formErrors).length !== 0 &&
                             <div className="error">{formErrors["error"]}</div>
@@ -105,11 +109,11 @@ const Login = () => {
                 <div className="overlay-container">
                     <div className="overlay">
                         <span className="logo">
-                            <span className="real">Real</span>
+                            <span className="real">Reel</span>
                             <span className="chat">Chat</span>
                         </span>
                         <h1>Connect with friends!</h1>
-                        <p>Real-time messaging with end-to-end encryption</p>
+                        <p>Reel-time messaging with end-to-end encryption</p>
                         <button className="overlay-button" id="signIn"><Link to='/signup'>Sign Up</Link></button>
                     </div>
                 </div>

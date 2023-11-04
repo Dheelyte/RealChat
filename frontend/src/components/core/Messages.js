@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import Header from './Header';
 import Search from './Search';
 import Api from '../Api';
 import seen from '../../images/seen.svg'
 import unseen from '../../images/unseen.svg'
 import userAvatar from '../../images/user2.svg'
 
-const WS_DOMAIN = 'ws://127.0.0.1:8000/ws';
+const WS_DOMAIN = 'wss://reelchat.me/ws';
 
 // const MAX_RETRIES = 3;
 
@@ -130,7 +131,7 @@ const Messages = () => {
                 // Decrease the unread count by one
                 setUnread(prev => prev - 1);
             }
-            if (chat.id === chatId) {
+            if (chat.id === chatId && chat.last_message.sender !== user.user.username) {
                 return { ...chat, last_message: {...chat.last_message, seen: true}};
             }
             return chat;
@@ -142,6 +143,7 @@ const Messages = () => {
     return (            
         <div className='container'>
             <div className={username ? 'chats-container responsive' : 'chats-container'}>
+                <Header />
                 <div className='title-unread-div'>
                     <h1>Chats</h1>
                     {
