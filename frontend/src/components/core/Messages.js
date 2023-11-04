@@ -7,7 +7,7 @@ import seen from '../../images/seen.svg'
 import unseen from '../../images/unseen.svg'
 import userAvatar from '../../images/user2.svg'
 
-const WS_DOMAIN = 'wss://reelchat.me/ws';
+const WS_DOMAIN = 'ws://127.0.0.1:8000/ws';
 
 // const MAX_RETRIES = 3;
 
