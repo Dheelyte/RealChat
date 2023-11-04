@@ -7,6 +7,8 @@ import seen from '../../images/seen.svg'
 import unseen from '../../images/unseen.svg'
 import userAvatar from '../../images/user2.svg'
 
+const WS_DOMAIN = 'wss://reelchat.me/ws';
+
 // const MAX_RETRIES = 3;
 
 const Messages = () => {
@@ -22,7 +24,7 @@ const Messages = () => {
 
     useEffect(() => {
         if (user) {
-            new WebSocket(`ws://127.0.0.1:8000/ws/status/?token=${user.token}`);
+            new WebSocket(`${WS_DOMAIN}/status/?token=${user.token}`);
         }
     }, [user])
     
@@ -61,7 +63,7 @@ const Messages = () => {
             // if (retryCount >= MAX_RETRIES) {
             //     return;
             // }
-            const newSocket = new WebSocket(`ws://127.0.0.1:8000/ws/notification/receive/?token=${user.token}`);
+            const newSocket = new WebSocket(`${WS_DOMAIN}/notification/receive/?token=${user.token}`);
 
             newSocket.onmessage = (event) => {
                 const message = JSON.parse(event.data);
