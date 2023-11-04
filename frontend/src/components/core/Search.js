@@ -41,7 +41,7 @@ const Search = () => {
                 onChange={handleChange}
                 className='search'
                 type='text'
-                placeholder='Search for RealChat users...'
+                placeholder='Search for users...'
             />
 
             { result.length !== 0 && (

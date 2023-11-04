@@ -86,6 +86,12 @@ const MessageDetail = () => {
                     handleTypingReceived(message);
                 }
             };
+
+            newSocket.onclose = () => {
+                setTimeout(() => {
+                    connectChatWebSocket();
+                }, 5000)
+            }
             //setChatSocket(newSocket);
             setChatSocket((prevSocket) => {
                 if (prevSocket) {
@@ -134,6 +140,12 @@ const MessageDetail = () => {
             // }
             const newSocket = new WebSocket(`${WS_DOMAIN}/notification/send/${other_user}/?token=${user.token}`)
 
+            newSocket.onclose = () => {
+                setTimeout(() => {
+                    connectSendNotificationWebSocket();
+                }, 5000)
+            }
+            
             setNotificationSocket((prevSocket) => {
                 if (prevSocket) {
                     prevSocket.close();
@@ -257,7 +269,7 @@ const MessageDetail = () => {
     }
 
     return (
-        <div className='messages-container'>
+        <>
             <div className='user-header'>
                 <div className='user-header-title'>
                     <span onClick={handleGoBack} className='back'>‹</span>
@@ -342,7 +354,7 @@ const MessageDetail = () => {
                     <img src={send} alt='' />
                 </button>
             </div>
-        </div>
+        </>
     );
 };
 
