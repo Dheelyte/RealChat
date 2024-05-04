@@ -4,10 +4,12 @@ import Api from "../Api";
 import userImg from '../../images/user2.svg'
 
 
-const Search = () => {
+
+const Search = ({changeMode, toggleMode}) => {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [result, setResult] = useState([])
+
 
     const handleChange = (e) => {
         setSearchTerm(e.target.value);
@@ -36,12 +38,12 @@ const Search = () => {
 
 
     return (
-        <div className='search-div'>
+        <div className="search-div">
             <input
                 onChange={handleChange}
-                className='search'
+                className="search"
                 type='text'
-                placeholder='Search fo`r users...'
+                placeholder='Search for users...'
             />
 
             { result.length !== 0 && (

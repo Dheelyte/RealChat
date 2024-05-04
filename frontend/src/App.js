@@ -7,19 +7,28 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import DefaultChat from './components/core/DefaultChat';
 import Messages from './components/core/Messages';
 import MessageDetail from './components/core/MessageDetail';
+import CallerPage from './components/core/callerPage';
+import { useState } from 'react';
+
+
 
 
 function App() {
-
+  const [changeMode, setIsChangeMode]   = useState()
+  const toggleMode = () =>{
+    setIsChangeMode(prevMode => !prevMode)
+};
+  
   return (
     <AuthProvider>
       <Routes>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<ProtectedRoute><Messages /></ProtectedRoute>}>
-          <Route index element={<DefaultChat />} />
-          <Route path=":username" element={<ProtectedRoute><MessageDetail /></ProtectedRoute>} />
-        </Route>
+        <Route path="/" element={<ProtectedRoute><Messages  changeMode={changeMode}/></ProtectedRoute>}>
+          <Route index element={<DefaultChat  />} />
+          <Route path=":username" element={<ProtectedRoute><MessageDetail  changeMode={changeMode} /></ProtectedRoute>} />
+          <Route path="/callerpage" element={<CallerPage changeMode={changeMode} toggleMode={toggleMode} />}/> 
+   </Route>
       </Routes>
     </AuthProvider>
   );
