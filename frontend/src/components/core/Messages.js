@@ -12,7 +12,7 @@ const WS_DOMAIN = 'wss://reelchat.me/ws';
 
 // const MAX_RETRIES = 3;
 
-const Messages = () => {
+const Messages = ({changeMode}) => {
 
     const { user, logout } = useAuth();
     const { username } = useParams();
@@ -153,9 +153,9 @@ const Messages = () => {
     
         setChats(updatedChats);
     };
-    
+   
     return (            
-        <div className='container'>
+        <div className={`container ${changeMode ? 'light' : 'dark'}`}>
             <div className={username ? 'chats-container responsive' : 'chats-container'}>
                 <Header />
                 <div className='title-unread-div'>

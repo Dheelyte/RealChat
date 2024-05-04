@@ -6,21 +6,31 @@ import userImg from '../../images/user2.svg'
 import send from '../../images/send.svg'
 import options from '../../images/options.svg'
 import useOnScreen from './onScreen';
+import { ReactComponent as VideoSvgIcon} from '../../images/video.svg'
+
+
+// The caller Page
+
+
+
+
+
 
 const WS_DOMAIN = 'wss://reelchat.me/ws';
 
 // const MAX_RETRIES = 3; // Define the maximum number of retries
 
-const MessageDetail = () => {
+const MessageDetail = ({changeMode}) => {
     const { user } = useAuth();
     const params = useParams();
     const navigate = useNavigate()
     const other_user = params.username;
-
     const bottomRef = useRef(null);
     const messageInputRef = useRef(null);
     const chatLog = useRef(null);
     const isVisible = useOnScreen(bottomRef)
+    
+    
 
     const [chatSocket, setChatSocket] = useState(null);
     const [notificationSocket, setNotificationSocket] = useState(null);
@@ -35,6 +45,8 @@ const MessageDetail = () => {
     const [showPreviousMessage, setShowPreviousMessage] = useState(true)
     const [previousMessagePage, setPreviousMessagePage] = useState(2)
     const [online, setOnline] = useState(null)
+    // added a new state 
+  
 
     
     const scrollToLatestMessage = () => {
@@ -268,9 +280,14 @@ const MessageDetail = () => {
         navigate('/');
     }
 
+
+    // const handleSwitchToCallerPage = () => {
+    //     history.push('/caller-page'); 
+    // };
+
     return (
         <>
-            <div className='user-header'>
+            <div className={`user-header  ${changeMode ? 'light' : 'dark'}`}>
                 <div className='user-header-title'>
                     <span onClick={handleGoBack} className='back'>‹</span>
                     <div className='search-image-div'>
@@ -281,9 +298,17 @@ const MessageDetail = () => {
                         <span>{online !== null && (online ? "online" : "offline")}</span>
                     </div>
                 </div>
+
+                
+                <div  alt="cal-image" className='call-img'   onClick={()=>navigate('/callerpage')}  >  
+                      <VideoSvgIcon  />
+                </div>
+
                 <div onClick={handleShowOptions} className='header-options'>
                     <img src={options} alt='' />
                 </div>
+
+              
                 {
                     showOptions && (
                     <div className='header-action'>
@@ -292,7 +317,7 @@ const MessageDetail = () => {
                 }
             </div>
 
-            <div ref={chatLog} className='chat-log'>
+            <div ref={chatLog} className={`chat-log  ${changeMode ? 'light' : 'dark'}`}>
                 { loading && <div className="custom-loader"></div> }
                 
                 { messages.length >= 30 && showPreviousMessage && (
@@ -340,7 +365,7 @@ const MessageDetail = () => {
                 }
                 <div ref={bottomRef} className='bottom-ref' />
             </div>
-            <div className='chat-message'>
+            <div className={`chat-message   ${changeMode ? 'light' : 'dark'}`}>
                 <textarea
                     onChange={handleInputChange}
                     ref={messageInputRef}
@@ -350,7 +375,7 @@ const MessageDetail = () => {
                     className='chat-message-input'
                     rows="1"
                 />
-                <button onClick={handleSendMessage} id="chat-message-submit" type="button" className='chat-message-submit'>
+                <button onClick={handleSendMessage} id="chat-message-submit" type="button" className={`chat-message-submit  ${changeMode ? 'light' : 'dark'}`}>
                     <img src={send} alt='' />
                 </button>
             </div>

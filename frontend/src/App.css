@@ -436,17 +436,200 @@ header {
 @keyframes s4{ 
   100%{transform: rotate(1turn)}
 }
+
+
+/* this is the video caller */
+.call-img svg{
+  width: 30px;
+}
+
+
+
+/* Notes */
+/* Code for the callerPage Side */
+
+
+.caller-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between; 
+  overflow:auto;
+  height: calc(100vh);
+  padding: 1%;
+}
+
+
+.top{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+  width:100%;
+}
+
+
+.top img{
+  width: 30px;
+}
+
+.top--1{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 1px;
+}
+.top--1 svg{
+  width: 30px;
+  height: 100%;
+  padding: 3px;
+}
+
+.top--2 {
+width: 30px;
+height: 100%;
+}
+/* the h1 of the timer */
+
+.timer {
+  font-size: 15px;
+}
+
+
+/* the caller or middle section */
+
+.caller--name{
+ display: flex;
+
+}
+
+.caller--name h1{
+color: black;
+font-size: 35px;
+}
+
+
+
+.end{
+  display: flex; 
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  border-top: 1px solid black;
+  padding: 2%;
+}
+
+.end svg{
+  width: 40px; 
+  align-items: end; 
+  height: 100%;
+  border: 2px solid black;
+  padding: 5px;
+  border-radius: 15px;
+  background-color: transparent;
+  /* animation: hoverIcon 0.5s  ease-in; */
+}
+
+.end svg:hover{
+  background-color: rgb(221, 221, 193);
+}
+
+
+.dark{
+  background-color: rgb(56, 53, 53);
+}
+
+.dark .caller--name h1{
+  color: white;
+}
+
+.dark .end svg{
+   fill: white;
+   border: 2px solid white;
+}
+
+
+.dark .end{
+  border-top: 1px solid white;
+}
+
+.dark .timer {
+  color: white;
+}
+.dark .top--2 {
+  fill: white;
+}
+
+
+.dark  .chats-container{
+  background-color: rgb(56, 53, 53);
+}
+.dark  .chats-container h1 {
+  color: white;
+}
+
+.dark .chats-container p{
+  color: black;
+}
+
+.dark .chats-container .welcome{
+  color: white;
+}
+.dark .call-img svg{
+  fill:white
+}
+.dark .messages-container{
+  background-color: rgb(56, 53, 53);
+}
+
+.dark .top--1 svg{
+  fill: whitesmoke;
+}
+
+
+.dark .end svg:hover{
+  background-color: rgb(88, 86, 86);
+}
+
+
+
+/* Dealing wwith responsiveness */
+
+
+/* @media (max-width: 760px) {
+   .chats-container{
+    width: 0%;
+   }
+ .messages-container{
+  width: 100%;
+ }
+  
+} */
+
+
+
 @media (max-width: 900px) {
   .chats-container {
-    width: 300px;
+    width: 0px;
   }
 }
 
 @media (max-width: 760px) {
-  .responsive {
+  /* .responsive {
     display: none;
-  }
+  } */
   .chats-container {
-    width: 100%;
+    width: 0px;
   }
+
 }
+
+
+
+
+
+
+
+
+
+
